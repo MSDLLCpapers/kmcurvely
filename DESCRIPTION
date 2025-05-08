@@ -1,0 +1,43 @@
+Package: kmcurvely
+Title: Interactive Kaplan-Meier curves plot for time-to-event analysis
+Version: 0.0.2
+Authors@R: c(
+    person("Yujie", "Zhao", email = "yujie.zhao@merck.com", role = c("aut", "cre")),
+    person("Benjamin", "Wang", email = "benjamin.wang@merck.com", role = c("aut")),
+    person("Shuo", "Geng", email = "shuo.geng1@merck.com", role = c("aut")),
+    person("Chen", "Wang", email = "chen.wang16@merck.com", role = c("aut")),
+    person("Merck & Co., Inc., Rahway, NJ, USA and its affiliates", role = "cph")
+    )
+Description: Interactive Kaplan-Meier plot for time-to-event analysis.
+License: GPL (>= 3)
+Encoding: UTF-8
+LazyData: true
+Depends:
+    R (>= 4.1.0)
+Imports:
+    crosstalk,
+    ggplot2,
+    survival,
+    htmltools,
+    metalite,
+    dplyr,
+    base64enc,
+    brew,
+    DT,
+    r2rtf,
+    plotly,
+    uuid,
+    patchwork,
+    tibble,
+    tidyr,
+    zip
+Suggests:
+    covr,
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+VignetteBuilder:
+    knitr
+Config/testthat/edition: 3
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2

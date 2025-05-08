@@ -1,0 +1,32 @@
+kmcurvely uses third-party R packages which may be distributed under different
+licenses. We have listed all of these third party packages and their licenses
+below. However, the most up-to-date information can be found via inspecting
+the Imports field in the DESCRIPTION file.
+
+You must agree to the terms of these licenses, in addition to the kmcurvely
+source code license, in order to use this software.
+
+--------------------------------------------------
+  Third party R packages listed by License type
+[Format: Name - URL]
+--------------------------------------------------
+
+MIT / X11 License (or adaptations) (https://www.opensource.org/licenses/MIT)
+  * crosstalk - https://github.com/rstudio/crosstalk/blob/main/LICENSE
+  * ggplot2 - https://ggplot2.tidyverse.org/LICENSE.html
+  * dplyr - https://dplyr.tidyverse.org/LICENSE.html
+  * plotly - https://cran.r-project.org/web/packages/plotly/LICENSE
+  * patchwork - https://cran.r-project.org/web/packages/patchwork/LICENSE
+  * tidyr - https://tidyr.tidyverse.org/LICENSE.html
+  * tibble - https://tibble.tidyverse.org/LICENSE.html
+  * zip - https://cran.r-project.org/web/packages/zip/LICENSE
+  * uuid - https://cran.r-project.org/web/packages/uuid/LICENSE
+
+GPL-3 / GPL-2
+  * survival - https://cran.r-project.org/web/licenses/LGPL-3
+  * htmltools - https://cran.r-project.org/web/licenses/GPL-3
+  * metalite - https://merck.github.io/metalite/LICENSE.html
+  * base64enc: https://cran.r-project.org/web/licenses/GPL-3
+  * brew - https://cran.r-project.org/web/licenses/GPL-2
+  * DT - https://cran.r-project.org/web/packages/DT/LICENSE
+  * r2rtf - https://www.r-project.org/Licenses/GPL-3

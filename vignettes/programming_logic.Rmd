@@ -1,0 +1,268 @@
+---
+title: "Design Pattern"
+author: "Yujie Zhao"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    code_folding: hide
+vignette: >
+  %\VignetteIndexEntry{Design Pattern}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+## Step 1: Read data
+```{r, ReadAndCleanData}
+library(dplyr)
+library(survival)
+library(ggplot2)
+library(plotly)
+library(kmcurvely)
+
+# read data
+data('kmcurvely_adsl')
+data('kmcurvely_adtte')
+
+adsl <- kmcurvely_adsl
+adtte <- kmcurvely_adtte
+
+surv_data <- adsl %>% 
+  filter(EFFFL == "Y") %>% 
+  select(USUBJID, TRT01P, SEX, AGEGR1) %>% 
+  left_join(
+    adtte %>% 
+      filter(PARAMCD == "OS") %>% 
+      select(USUBJID, PARAMCD, AVAL, CNSR) %>% 
+      union_all(
+        adtte %>% 
+          mutate(PARAMCD = "PFS",
+                 AVAL = AVAL - 3) %>% 
+          select(USUBJID, PARAMCD, AVAL, CNSR)
+      )
+  ) %>% 
+  rename(time = AVAL, 
+         event = CNSR,
+         treatment = TRT01P)
+```
+## Step 2: Calculate the survival probability
+```{r, CalcSurv}
+# ----------------------------------------------- #
+#   calculate survival fit
+# ----------------------------------------------- #
+# for overall patients
+surv.fit_pfs <- survival::survfit(survival::Surv(time, event) ~ treatment,
+                                  data = surv_data %>% filter(PARAMCD == "PFS"), 
+                                  conf.type = "log-log")
+
+surv.fit_os <- survival::survfit(survival::Surv(time, event) ~ treatment,
+                                 data = surv_data %>% filter(PARAMCD == "OS"), 
+                                 conf.type = "log-log")
+# for subgroups of PFS
+surv.fit_pfs_male <- survival::survfit(survival::Surv(time, event) ~ treatment,
+                                       data = surv_data %>% filter(PARAMCD == "PFS", SEX == "M"), 
+                                       conf.type = "log-log")
+
+surv.fit_pfs_female <- survival::survfit(survival::Surv(time, event) ~ treatment,
+                                         data = surv_data %>% filter(PARAMCD == "PFS", SEX == "F"), 
+                                         conf.type = "log-log")
+
+# for subgroups of OS
+surv.fit_os_male <- survival::survfit(survival::Surv(time, event) ~ treatment,
+                                      data = surv_data %>% filter(PARAMCD == "OS", SEX == "M"), 
+                                      conf.type = "log-log")
+
+surv.fit_os_female <- survival::survfit(survival::Surv(time, event) ~ treatment,
+                                        data = surv_data %>% filter(PARAMCD == "OS", SEX == "F"), 
+                                        conf.type = "log-log")
+
+# ----------------------------------------------- #
+#   extracts the KM estimates from survival fit   
+# ----------------------------------------------- #
+db_pfs <- kmcurvely:::km_extract(surv.fit_pfs) |> mutate(subgroup = "All") |>
+  union_all(
+    kmcurvely:::km_extract(surv.fit_pfs_male) |> mutate(subgroup = "Male")
+  ) |>
+  union_all(
+    kmcurvely:::km_extract(surv.fit_pfs_female) |> mutate(subgroup = "Female")
+  ) |>
+  select(time, n.risk, n.event, n.censor, surv, strata, subgroup) |>
+  rename(group = strata) %>% 
+  mutate(surv = round(surv, 2), endpoint = "PFS")
+
+db_os <- kmcurvely:::km_extract(surv.fit_os) |>
+  mutate(subgroup = "All") |>
+  union_all(
+    kmcurvely:::km_extract(surv.fit_os_male) |> mutate(subgroup = "Male")
+  ) |>
+  union_all(
+    kmcurvely:::km_extract(surv.fit_os_female) |> mutate(subgroup = "Female")
+  ) |>
+  select(time, n.risk, n.event, n.censor, surv, strata, subgroup) |>
+  rename(group = strata) %>% 
+  mutate(surv = round(surv, 2), endpoint = "OS")
+
+db <- db_pfs %>% 
+  union_all(db_os) %>% 
+  mutate(group = factor(group, levels = c("Placebo", "Xanomeline Low Dose", "Xanomeline High Dose")),
+         subgroup =  factor(subgroup, levels = c("All", "Male", "Female")),
+         endpoint = factor(endpoint, levels =  c("PFS", "OS")),
+         shared_id = paste0(endpoint, "-", subgroup)
+         )
+```
+
+## Step 3: Calculate the Number of subjects at Risk
+```{r, CalcAtRisk, message=FALSE}
+# ----------------------------------------------- #
+#    count the number of subjects at risk
+#    by endpoint and subgroup
+# ----------------------------------------------- #
+time_unit <- "weeks"
+
+tbl_at_risk <- NULL  
+
+for (ept in c("PFS", "OS")) {
+  for (subgrp in c("All", "Male", "Female")) {
+    
+    # filter the endpoint and subgroup
+    db_sub <- db %>% filter(endpoint == ept, subgroup == subgrp)
+  
+    # range of the x-axis
+    xlimit <- switch(time_unit,  
+                     "years"  = ceiling(max(db_sub$time)),
+                     "months" = round((max(db_sub$time) + 3), -1),
+                     "weeks"  = round((max(db_sub$time) + 20) / 20) * 20,
+                     "days"   = round((max(db_sub$time) + 60) / 60) * 60)
+  
+    # intervals to break the x-axis
+    break_x_by <- switch(time_unit,  
+                         "years"  = max(ceiling(max(db_sub$time) / 7), 1),
+                         "months" = max(round((max(db_sub$time) / 7) / 3) * 3, 3),
+                         "weeks"  = max(round((max(db_sub$time) / 7) / 20) * 20, 20),
+                         "days"   = max(round((max(db_sub$time) / 7) / 60) * 60, 60))
+  
+    # time points where number of risk is reported
+    break_x <- seq(0, xlimit, 1)
+    selected_time <- seq(0, xlimit, break_x_by)
+  
+    # a table summarizing the number of patients at risk
+    tbl_at_risk_new <- lapply(break_x, function(tau) {
+      sapply(split(db_sub, db_sub$group), function(x) subset(x, time > tau)[1, "n.risk"])
+    })
+  
+    tbl_at_risk_new <- do.call(cbind, tbl_at_risk_new)
+    tbl_at_risk_new[is.na(tbl_at_risk_new)] <- 0
+  
+    # a wide table with n-group rows and n-time columns
+    tbl_at_risk_new <- as_tibble(tbl_at_risk_new) %>% 
+      mutate(group = row.names(tbl_at_risk_new),
+             endpoint = ept, subgroup = subgrp)
+  
+    # a wide table with n-group rows and n-selected time columns 
+    tbl_at_risk_new_wide <- tbl_at_risk_new[, colnames(tbl_at_risk_new) %in% c("endpoint","subgroup", "group", paste0("V", selected_time + 1))] %>%
+      select("endpoint", "subgroup", "group", everything())
+    
+    colnames(tbl_at_risk_new_wide) <- c("endpoint", "subgroup", "group", selected_time)
+  
+    # a long table with each row for the survival prob at 1 endpoint 1 group 1 time point  
+    tbl_at_risk_new <- tbl_at_risk_new %>% 
+      tidyr::pivot_longer(cols = starts_with("V"),
+                          names_to = "time",
+                          values_to = "n_at_risk") %>% 
+      left_join(tibble(time = paste0("V", 1:length(break_x)), time_new = break_x)) %>% 
+      select(-time) %>% 
+      rename(time = time_new)
+    
+    tbl_at_risk <- tbl_at_risk %>% union_all(tbl_at_risk_new)
+  }
+}
+
+tbl_at_risk <- tbl_at_risk %>% mutate(shared_id = paste0(endpoint, "-", subgroup))
+
+tbl_at_risk_select <- tbl_at_risk %>% 
+  group_by(endpoint, subgroup, group) %>% 
+  filter(row_number() %in% (selected_time + 1)) %>% 
+  tidyr::pivot_wider(names_from = time, values_from = n_at_risk) %>% 
+  mutate(shared_id = paste0(endpoint, "-", subgroup))
+```
+## Step 4: Build Shared data
+```{r, BuildSharedData}
+shareddata_id <- uuid::UUIDgenerate()
+
+surv_shared <- crosstalk::SharedData$new(db, 
+                                         group = shareddata_id,
+                                         key = ~shared_id)
+
+cnr_shared <- crosstalk::SharedData$new(subset(db, n.censor >= 1), 
+                                        group = shareddata_id,
+                                        key = ~shared_id
+                                        )
+
+risk_hover_shared <- crosstalk::SharedData$new(tbl_at_risk, 
+                                               group = shareddata_id,
+                                               key = ~shared_id
+                                               )
+
+risk_table_shared <- crosstalk::SharedData$new(tbl_at_risk_select, 
+                                               group = shareddata_id,
+                                               key = ~shared_id
+                                               )
+```
+
+## Step 5: Plot KM Curves
+```{r, ggplot2KmCurve}
+km_plot <- ggplot() +
+    geom_step(data = surv_shared,
+              aes(x = .data$time, y = .data$surv, group = .data$group, colour =.data$group), 
+              direction = "hv", 
+              size = 0.7) +
+    geom_point(data = cnr_shared,
+              aes(x = .data$time, y = .data$surv, group = .data$group, colour = .data$group),
+              size = 1,
+              show.legend = FALSE)
+```
+
+## Step 6: Biuld Checkbox to filter endpoint and subgroup
+```{r, BuildTwoSetsOfCheckbox}
+checkbox_endpoint <- crosstalk::filter_checkbox(id = "group1", sharedData = surv_shared, 
+                                                group = ~endpoint, label = "Endpoint")
+
+checkbox_subgroup <- crosstalk::filter_checkbox(id = "group2", sharedData = surv_shared, 
+                                                group = ~subgroup, label = "Subgroup")
+```
+
+## Step 7: Combine everything together
+```{r, CombineEverything}
+crosstalk::bscols(widths = c(3, 9),
+                  # 2 sets of checkbox to select endpoint and subgroup
+                  list(checkbox_endpoint, checkbox_subgroup), 
+                  # interactive KM curve
+                  list(
+                  ggplotly(km_plot, tooltip = c("text", "y"), dynamicTicks = TRUE) %>%
+                    highlight(on = "plotly_click", off = "plotly_doubleclick") %>% 
+                    # add_trace(data = risk_hover_shared,
+                    #           x = ~.data$time, y = ~.data$n_at_risk,
+                    #           color = ~.data$group, group = ~.data$group,
+                    #           type = "scatter", mode = "markers", hoverinfo = "none",
+                    #           showlegend = FALSE,
+                    #           hovertemplate = 'Number of subjects at risk: %{y:.0f}<extra></extra>',
+                    #           opacity = 0) %>%
+                    layout(hovermode = "x unified",
+                           legend = list(orientation = 'h', y = -0.2),
+                           title = list(text = "Kaplan–Meier curves")),
+                  # at-risk table
+                  "Number of participants at risk",
+                  DT::datatable(risk_table_shared,
+                                options = list(columnDefs = list(list(visible = FALSE, 
+                                                                      targets = c(0)))),
+                                rownames = FALSE))
+                  )
+```
+

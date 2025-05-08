@@ -1,0 +1,39 @@
+---
+title: "Interactive KM plots"
+author: "Yujie Zhao"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    code_folding: hide
+vignette: >
+  %\VignetteIndexEntry{Interactive KM plots}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+```{r, message=FALSE}
+library(dplyr)
+library(survival)
+library(ggplot2)
+library(plotly)
+library(r2rtf)
+library(kmcurvely)
+```
+
+```{r, warning=FALSE}
+kmcurvely(meta = meta_tte_example(),
+          population = "apat",
+          observation = "efficacy_population",
+          endpoint = "pfs;os",
+          subgroup = "male;female",
+          time_unit = c("days", "weeks", "months", "years"))
+```
+
