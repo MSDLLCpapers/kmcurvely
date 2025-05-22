@@ -1,0 +1,7 @@
+pandoc: 3.1.11
+pkgdown: 2.1.2
+pkgdown_sha: ~
+articles:
+  programming_logic: programming_logic.html
+  quick_start: quick_start.html
+last_built: 2025-05-22T19:21Z
