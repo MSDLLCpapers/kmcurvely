@@ -32,6 +32,7 @@
 #'
 #' @examples
 #' meta_data <- meta_tte_example()
+#'
 #' # Use the returned meta_data in subsequent analysis functions.
 
 
