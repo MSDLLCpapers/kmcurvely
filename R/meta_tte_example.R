@@ -46,6 +46,7 @@ meta_tte_example <- function() {
   )
 
   # read adtte dataset
+
   adtte <- kmcurvely_adtte
 
   adtte <- adtte %>% dplyr::rename(TRT01P = TRTP)
