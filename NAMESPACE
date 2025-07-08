@@ -3,6 +3,8 @@
 export(kmcurvely)
 export(kmcurvely_static)
 export(meta_tte_example)
+export(meta_tte_example_new)
+export(prepare_hr_forestly)
 import(ggplot2)
 import(metalite)
 import(r2rtf)
