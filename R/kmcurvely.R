@@ -22,7 +22,7 @@
 #' @param meta A metadata object that contains the mappings for the variables of interest.
 #' @param population A string indicating the population to use (e.g., "apat").
 #' @param observation A string indicating the observation population (e.g., "efficacy_population").
-#' @param endpoint A semicolon-separated string of endpoints to be analyzed (e.g., "pfs;os").
+#' @param endpoint A semicolon-separated string of endpoints to be analyzed (e.g., "pfs;ttde").
 #' @param subgroup A semicolon-separated string of subgroups to filter by (e.g., "male;female").
 #' @param x_label A string for the x-axis label (default is "Time in days/weeks/months/years").
 #' @param y_label A string for the y-axis label (default is "Survival rate").
@@ -52,14 +52,14 @@
 #'   meta = meta,
 #'   population = "apat",
 #'   observation = "efficacy_population",
-#'   endpoint = "pfs;os",
+#'   endpoint = "pfs;ttde",
 #'   subgroup = "male;female"
 #' )
 #'
 kmcurvely <- function(meta = meta_tte_example(),
                       population = "apat",
                       observation = "efficacy_population",
-                      endpoint = "pfs;os",
+                      endpoint = "pfs;ttde",
                       subgroup = "male;female",
                       x_label = NULL,
                       y_label = "Survival rate",

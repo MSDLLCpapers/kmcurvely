@@ -60,7 +60,7 @@ meta_tte_example <- function() {
   # define analysis plan
   plan <- metalite::plan(
     analysis = "interactive_km_curve", population = "apat",
-    observation = "efficacy_population", parameter = "pfs;os;male;female"
+    observation = "efficacy_population", parameter = "pfs;ttde;male;female"
   )
 
   # define metadata
@@ -88,9 +88,9 @@ meta_tte_example <- function() {
       label = "PFS"
     ) |>
     metalite::define_parameter(
-      name = "os",
-      subset = PARAMCD == "OS",
-      label = "OS"
+      name = "ttde",
+      subset = PARAMCD == "TTDE",
+      label = "TTDE"
     ) |>
     metalite::define_parameter(
       name = "male",
