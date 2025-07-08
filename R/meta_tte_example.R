@@ -33,8 +33,6 @@
 #' @examples
 #' meta_data <- meta_tte_example()
 #' # Use the returned meta_data in subsequent analysis functions.
-
-
 meta_tte_example <- function() {
   # --------------------------------
   #     data cleaning
@@ -44,15 +42,18 @@ meta_tte_example <- function() {
   adsl$TRT01P <- factor(
     adsl$TRT01P,
     levels = c("Placebo", "Xanomeline Low Dose", "Xanomeline High Dose"),
-    labels = c("Placebo", "Low Dose", "High Dose"))
+    labels = c("Placebo", "Low Dose", "High Dose")
+  )
 
   # read adtte dataset
-  adtte<-kmcurvely_adtte
+
+  adtte <- kmcurvely_adtte
 
   adtte <- adtte %>% dplyr::rename(TRT01P = TRTP)
   adtte$TRT01P <- factor(adtte$TRT01P,
     levels = c("Placebo", "Xanomeline Low Dose", "Xanomeline High Dose"),
-    labels = c("Placebo", "Low Dose", "High Dose"))
+    labels = c("Placebo", "Low Dose", "High Dose")
+  )
   # manually add a new endpoint, i.e., PFS
   adtte <- adtte %>%
     dplyr::union_all(adtte %>% mutate(PARAMCD = "PFS", AVAL = AVAL - 3))
@@ -60,14 +61,14 @@ meta_tte_example <- function() {
   # define analysis plan
   plan <- metalite::plan(
     analysis = "interactive_km_curve", population = "apat",
-    observation = "efficacy_population", parameter = "pfs;os;male;female"
+    observation = "efficacy_population", parameter = "pfs;ttde;male;female"
   )
 
   # define metadata
   meta <- metalite::meta_adam(
     population = adsl,
     observation = adtte
-    ) |>
+  ) |>
     metalite::define_plan(plan = plan) |>
     metalite::define_population(
       name = "apat",
@@ -88,9 +89,9 @@ meta_tte_example <- function() {
       label = "PFS"
     ) |>
     metalite::define_parameter(
-      name = "os",
-      subset = PARAMCD == "OS",
-      label = "OS"
+      name = "ttde",
+      subset = PARAMCD == "TTDE",
+      label = "TTDE"
     ) |>
     metalite::define_parameter(
       name = "male",

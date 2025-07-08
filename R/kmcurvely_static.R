@@ -48,32 +48,27 @@
 #'   break_x_by = key_data_objects$break_x_by,
 #'   population = key_data_objects$population
 #' )
-
-
-
-kmcurvely_static <- function( surv_shared,
-                              tbl_at_risk,
-                              x_label = "Time in Weeks",
-                              y_label = "Survival rate",
-                              color,
-                              xlimit,
-                              break_x_by,
-                              population,
-                              legned_pos= c(0.1, 0.12),
-                              folder_path=tempdir(),
-                              zipname="all_static_plots.zip") {
-
+kmcurvely_static <- function(surv_shared,
+                             tbl_at_risk,
+                             x_label = "Time in Weeks",
+                             y_label = "Survival rate",
+                             color,
+                             xlimit,
+                             break_x_by,
+                             population,
+                             legned_pos = c(0.1, 0.12),
+                             folder_path = tempdir(),
+                             zipname = "all_static_plots.zip") {
   unique_shared_ids <- unique(surv_shared$shared_id)
 
   # Create an empty list to store the plots & tables
   plots <- list()
-  par<- meta_tte_example()[["parameter"]]
+  par <- meta_tte_example()[["parameter"]]
   # Iterate over unique shared_id values
   for (shared_id in unique_shared_ids) {
-
     # Subset the data for the current shared_id
     subset_data <- filter(surv_shared, shared_id == .env$shared_id)
-    #print(subset_data)
+    # print(subset_data)
     # shared_id<-"PFS-ALL"
 
     endpoint_ <- tolower(unlist(strsplit(shared_id, "-"))[1])
@@ -99,20 +94,20 @@ kmcurvely_static <- function( surv_shared,
     subgroup_idx <- grep(subgroup_, df$name)
     if (length(subgroup_idx) > 0) {
       title_sub <- df$label[subgroup_idx][1]
-    } else{
+    } else {
       title_sub <- NULL
     }
 
     # Define the title of the plot
 
     title1 <- paste0("Kaplan-Meier Plot of ", title_end)
-    title2 <- ifelse (is.null(title_sub), "", paste0(" (", title_sub, ")"))
+    title2 <- ifelse(is.null(title_sub), "", paste0(" (", title_sub, ")"))
 
 
     # Population Title
-    title3 <- paste0( "(", toupper(population), " Population)")
+    title3 <- paste0("(", toupper(population), " Population)")
 
-    if(title2 != "") {
+    if (title2 != "") {
       plot_title <- paste(title1, title2, sep = "\n")
     } else {
       plot_title <- title1
@@ -122,32 +117,42 @@ kmcurvely_static <- function( surv_shared,
 
     # filter missing data for plotting
     kmplot1 <-
-      ggplot2::ggplot(data =  dplyr::filter(subset_data, !is.na(surv)),
-                      ggplot2::aes(group = group, colour = group)) +
-      ggplot2::geom_step(ggplot2::aes(x = time,
-                                      y = surv,
-                                      linetype = group,
-                                      colour = group),
-                         direction = "hv",
-                         linewidth = 1,
-                         show.legend = TRUE) +
-      ggplot2::geom_point(data = subset(subset_data, n.censor >= 1),
-                          ggplot2::aes(x = time, y = surv),
-                          shape = 3,
-                          size = 1,
-                          show.legend = FALSE) +
+      ggplot2::ggplot(
+        data = dplyr::filter(subset_data, !is.na(surv)),
+        ggplot2::aes(group = group, colour = group)
+      ) +
+      ggplot2::geom_step(
+        ggplot2::aes(
+          x = time,
+          y = surv,
+          linetype = group,
+          colour = group
+        ),
+        direction = "hv",
+        linewidth = 1,
+        show.legend = TRUE
+      ) +
+      ggplot2::geom_point(
+        data = subset(subset_data, n.censor >= 1),
+        ggplot2::aes(x = time, y = surv),
+        shape = 3,
+        size = 1,
+        show.legend = FALSE
+      ) +
       # Set up the theme for the plot
-      ggplot2::theme_bw()+
+      ggplot2::theme_bw() +
       ggplot2::theme(
         legend.position = legned_pos,
         legend.title.align = 0.5,
-        legend.background=element_blank(),
-        panel.grid = ggplot2::element_line(color = "grey85",
-                                           linewidth = 0.5,
-                                           linetype = 1),
+        legend.background = element_blank(),
+        panel.grid = ggplot2::element_line(
+          color = "grey85",
+          linewidth = 0.5,
+          linetype = 1
+        ),
         axis.title.x = ggplot2::element_text(colour = "black"),
         # axis.title.y = ggplot2::element_text(colour = "black"),
-        axis.title.y = ggplot2::element_text(margin = ggplot2::margin(r = 10))  # Adjust the right margin of the y-axis label
+        axis.title.y = ggplot2::element_text(margin = ggplot2::margin(r = 10)) # Adjust the right margin of the y-axis label
       ) +
       # Define the legend for the plot
       ggplot2::guides(
@@ -162,30 +167,38 @@ kmcurvely_static <- function( surv_shared,
       ggplot2::ylab(tools::toTitleCase(y_label)) +
       ggplot2::coord_cartesian(clip = "off") +
       # Control x-axis and y-axis breaks
-      ggplot2::scale_x_continuous(breaks = seq(0, xlimit, by = break_x_by),
-                                  limits = c(0, xlimit),
-                                  expand = c(0.02, 0)) +
-      ggplot2::scale_y_continuous(breaks = seq(0, 1, 0.1),
-                                  limits = c(0, 1),
-                                  expand = c(0.02, 0))
+      ggplot2::scale_x_continuous(
+        breaks = seq(0, xlimit, by = break_x_by),
+        limits = c(0, xlimit),
+        expand = c(0.02, 0)
+      ) +
+      ggplot2::scale_y_continuous(
+        breaks = seq(0, 1, 0.1),
+        limits = c(0, 1),
+        expand = c(0.02, 0)
+      )
 
 
-    tbl_at_risk_plot<- tbl_at_risk %>%
+    tbl_at_risk_plot <- tbl_at_risk %>%
       group_by(endpoint, subgroup, group) %>%
       filter(row_number() %in% (seq(0, xlimit, by = break_x_by) + 1)) %>%
       filter(shared_id == .env$shared_id)
 
     # Create count table to append
     append_table <-
-      ggplot2::ggplot(data = tbl_at_risk_plot,
-                      ggplot2::aes(x = time,
-                                   y = group,
-                                   label = as.character(n_at_risk))
+      ggplot2::ggplot(
+        data = tbl_at_risk_plot,
+        ggplot2::aes(
+          x = time,
+          y = group,
+          label = as.character(n_at_risk)
+        )
       ) +
       ggplot2::geom_text(
         lineheight = 1,
         size = 8 / ggplot2::.pt,
-        show.legend = FALSE) +
+        show.legend = FALSE
+      ) +
       ggplot2::xlab("") +
       ggplot2::ylab("") +
       ggplot2::ggtitle("Number of participants at risk \n") +
@@ -200,7 +213,7 @@ kmcurvely_static <- function( surv_shared,
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
         plot.background = element_blank()
-      )+
+      ) +
       ggplot2::theme(
         strip.background = ggplot2::element_blank(),
         plot.margin = ggplot2::margin(t = 1, r = 1, b = 1, l = 1, unit = "lines"),
@@ -216,15 +229,16 @@ kmcurvely_static <- function( surv_shared,
 
     kmplot_table <-
       patchwork::wrap_plots(kmplot1, append_table,
-                            ncol = 1,
-                            heights = c(8.5, 1.5))
+        ncol = 1,
+        heights = c(8.5, 1.5)
+      )
 
 
     # Store the plot in the list
     plots[[shared_id]] <- kmplot_table
 
     # Save the plot as a PNG file
-    png_filename <- file.path(folder_path,paste0("plot_", shared_id, ".png"))
+    png_filename <- file.path(folder_path, paste0("plot_", shared_id, ".png"))
     ggplot2::ggsave(png_filename, plot = kmplot_table, width = 8, height = 5)
 
 
@@ -238,13 +252,12 @@ kmcurvely_static <- function( surv_shared,
       r2rtf::rtf_source("") %>% # add data source
       r2rtf::rtf_figure(fig_width = 6, fig_height = 4) %>% # default setting of page and figure
       r2rtf::rtf_encode(doc_type = "figure") %>% # encode rtf as figure
-      r2rtf::write_rtf(file = paste0(folder_path,"/","plot_", shared_id, ".rtf")) # write RTF to a file
+      r2rtf::write_rtf(file = paste0(folder_path, "/", "plot_", shared_id, ".rtf")) # write RTF to a file
 
     rtf_files <- list.files(folder_path, full.names = TRUE, pattern = "\\.rtf$")
     zip_path <- file.path(folder_path, zipname)
     # Ensure no `./` prefix in the filenames
     zip::zip(zip_path, files = rtf_files, mode = "cherry-pick")
-
   }
 
   return(zip_path)
