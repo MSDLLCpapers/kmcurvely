@@ -49,7 +49,6 @@
 #' @keywords internal
 #'
 km_extract <- function(f.survfit) {
-
   # input type check
   check_args(f.survfit, type = c("survfit"))
 

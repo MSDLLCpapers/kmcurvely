@@ -33,7 +33,6 @@
 #' @examples
 #' meta_data <- meta_tte_example_new()
 #' # Use the returned meta_data in subsequent analysis functions.
-
 meta_tte_example_new <- function() {
   # --------------------------------
   #     data cleaning
@@ -55,13 +54,15 @@ meta_tte_example_new <- function() {
 
   adtte_pfs <- adtte_pfs |>
     dplyr::select(-c(AVAL, CNSR)) |>
-    dplyr::mutate(PARAMCD = "PFS",
-           enroll_time = simtrial::rpwexp_enroll(nrow(adtte_single_endpt), enroll_rate = data.frame(duration = 6, rate = nrow(adtte_single_endpt)/6)),
-           dropout_time = rexp(nrow(adtte_single_endpt), -log(0.98)/12),
-           cte = pmin(dropout_time, fail_time) + enroll_time,
-           fail = (fail_time <= dropout_time) * 1,
-           tte = pmin(cte, 36) - enroll_time,
-           event = fail * (cte <= 36)) |>
+    dplyr::mutate(
+      PARAMCD = "PFS",
+      enroll_time = simtrial::rpwexp_enroll(nrow(adtte_single_endpt), enroll_rate = data.frame(duration = 6, rate = nrow(adtte_single_endpt) / 6)),
+      dropout_time = rexp(nrow(adtte_single_endpt), -log(0.98) / 12),
+      cte = pmin(dropout_time, fail_time) + enroll_time,
+      fail = (fail_time <= dropout_time) * 1,
+      tte = pmin(cte, 36) - enroll_time,
+      event = fail * (cte <= 36)
+    ) |>
     dplyr::rename(AVAL = tte) |>
     dplyr::mutate(CNSR = 1 - event) |>
     dplyr::select(-c(enroll_time, dropout_time, cte, fail, event))
@@ -76,13 +77,15 @@ meta_tte_example_new <- function() {
 
   adtte_os <- adtte_os |>
     dplyr::select(-c(AVAL, CNSR)) |>
-    dplyr::mutate(PARAMCD = "OS",
-                  enroll_time = simtrial::rpwexp_enroll(nrow(adtte_single_endpt), enroll_rate = data.frame(duration = 6, rate = nrow(adtte_single_endpt)/6)),
-                  dropout_time = rexp(nrow(adtte_single_endpt), -log(0.98)/12),
-                  cte = pmin(dropout_time, fail_time) + enroll_time,
-                  fail = (fail_time <= dropout_time) * 1,
-                  tte = pmin(cte, 36) - enroll_time,
-                  event = fail * (cte <= 36)) |>
+    dplyr::mutate(
+      PARAMCD = "OS",
+      enroll_time = simtrial::rpwexp_enroll(nrow(adtte_single_endpt), enroll_rate = data.frame(duration = 6, rate = nrow(adtte_single_endpt) / 6)),
+      dropout_time = rexp(nrow(adtte_single_endpt), -log(0.98) / 12),
+      cte = pmin(dropout_time, fail_time) + enroll_time,
+      fail = (fail_time <= dropout_time) * 1,
+      tte = pmin(cte, 36) - enroll_time,
+      event = fail * (cte <= 36)
+    ) |>
     dplyr::rename(AVAL = tte) |>
     dplyr::mutate(CNSR = 1 - event) |>
     dplyr::select(-c(enroll_time, dropout_time, cte, fail, event))
@@ -94,15 +97,17 @@ meta_tte_example_new <- function() {
   plan <- metalite::plan(
     analysis = "interactive_km_curve", population = "apat",
     observation = "efficacy_population", parameter = "pfs;os;male;female"
-    ) |>
-    metalite::add_plan(analysis = "hr_forestly", population = "apat",
-                       observation = "efficacy_population", parameter = "pfs;os;male;female")
+  ) |>
+    metalite::add_plan(
+      analysis = "hr_forestly", population = "apat",
+      observation = "efficacy_population", parameter = "pfs;os;male;female"
+    )
 
   # define metadata
   meta <- metalite::meta_adam(
     population = adsl,
     observation = adtte
-    ) |>
+  ) |>
     metalite::define_plan(plan = plan) |>
     metalite::define_population(
       name = "apat",

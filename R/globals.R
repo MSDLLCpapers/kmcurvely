@@ -16,4 +16,4 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-utils::globalVariables(c("time", "time_new", "group", "n_at_risk", "n.censor", "endpoint", "subgroup", "AVAL", "SAFFL", "PARAMCD", "SEX", "TRTP", "time_unit","surv","n.risk",".data", "kmcurvely_adtte", "kmcurvely_adsl", ".env"))
+utils::globalVariables(c("time", "time_new", "group", "n_at_risk", "n.censor", "endpoint", "subgroup", "AVAL", "SAFFL", "PARAMCD", "SEX", "TRTP", "time_unit", "surv", "n.risk", ".data", "kmcurvely_adtte", "kmcurvely_adsl", ".env"))

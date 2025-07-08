@@ -29,19 +29,20 @@
 #' @export
 #'
 #' @examples
-#' prepare_hr_forestly(meta = meta_tte_example_new(),
-#'                     population = "apat",
-#'                     observation = "efficacy_population",
-#'                     endpoint = "pfs;os",
-#'                     subgroup = "male;female",
-#'                     arm_levels = c("Placebo", "Xanomeline Low Dose", "Xanomeline High Dose"))
+#' prepare_hr_forestly(
+#'   meta = meta_tte_example_new(),
+#'   population = "apat",
+#'   observation = "efficacy_population",
+#'   endpoint = "pfs;os",
+#'   subgroup = "male;female",
+#'   arm_levels = c("Placebo", "Xanomeline Low Dose", "Xanomeline High Dose")
+#' )
 prepare_hr_forestly <- function(meta = NULL,
                                 population = NULL,
                                 observation = NULL,
                                 endpoint = NULL,
                                 subgroup = NULL,
                                 arm_levels = NULL) {
-
   # obtain population/observation variables
   pop_var <- metalite::collect_adam_mapping(meta, population)$var
   obs_var <- metalite::collect_adam_mapping(meta, observation)$var
@@ -88,7 +89,6 @@ prepare_hr_forestly <- function(meta = NULL,
     for (comp in 2:n_group) {
       # loop for all possible subgroups
       for (subgrp in c("all", subgroup)) {
-
         endpt_filter <- metalite::collect_adam_mapping(meta, endpt)$subset
         endpt_label <- metalite::collect_adam_mapping(meta, endpt)$label
         arm_selected <- arm_levels[c(1, comp)]
@@ -111,24 +111,34 @@ prepare_hr_forestly <- function(meta = NULL,
         cox_summary <- summary(cox_model)
 
         #  get the sample size
-        n_tbl_new <- data.frame(n = cox_summary$n,
-                                endpoint = endpt_label, subgroup = subgroup_label, arm_comparision = paste0(rev(arm_selected), collapse = " vs. "))
+        n_tbl_new <- data.frame(
+          n = cox_summary$n,
+          endpoint = endpt_label, subgroup = subgroup_label, arm_comparision = paste0(rev(arm_selected), collapse = " vs. ")
+        )
         n_tbl <- rbind(n_tbl, n_tbl_new)
         #  get the events
-        event_tbl_new <- data.frame(event = cox_summary$nevent,
-                                    endpoint = endpt_label, subgroup = subgroup_label, arm_comparision = paste0(rev(arm_selected), collapse = " vs. "))
+        event_tbl_new <- data.frame(
+          event = cox_summary$nevent,
+          endpoint = endpt_label, subgroup = subgroup_label, arm_comparision = paste0(rev(arm_selected), collapse = " vs. ")
+        )
         event_tbl <- rbind(event_tbl, event_tbl_new)
         #  get the HR point estimate
-        hr_est_tbl_new <- data.frame(hr_est = cox_summary$coef[2],
-                                     endpoint = endpt_label, subgroup = subgroup_label, arm_comparision = paste0(rev(arm_selected), collapse = " vs. "))
+        hr_est_tbl_new <- data.frame(
+          hr_est = cox_summary$coef[2],
+          endpoint = endpt_label, subgroup = subgroup_label, arm_comparision = paste0(rev(arm_selected), collapse = " vs. ")
+        )
         hr_est_tbl <- rbind(hr_est_tbl, hr_est_tbl_new)
         #  get the HR lower CI
-        hr_ci_lower_tbl_new <- data.frame(hr_ci_lower = cox_summary$conf.int[, "lower .95"],
-                                          endpoint = endpt_label, subgroup = subgroup_label, arm_comparision = paste0(rev(arm_selected), collapse = " vs. "))
+        hr_ci_lower_tbl_new <- data.frame(
+          hr_ci_lower = cox_summary$conf.int[, "lower .95"],
+          endpoint = endpt_label, subgroup = subgroup_label, arm_comparision = paste0(rev(arm_selected), collapse = " vs. ")
+        )
         hr_ci_lower_tbl <- rbind(hr_ci_lower_tbl, hr_ci_lower_tbl_new)
         #  get the HR upper CI
-        hr_ci_upper_tbl_new <- data.frame(hr_ci_upper = cox_summary$conf.int[, "upper .95"],
-                                          endpoint = endpt_label, subgroup = subgroup_label, arm_comparision = paste0(rev(arm_selected), collapse = " vs. "))
+        hr_ci_upper_tbl_new <- data.frame(
+          hr_ci_upper = cox_summary$conf.int[, "upper .95"],
+          endpoint = endpt_label, subgroup = subgroup_label, arm_comparision = paste0(rev(arm_selected), collapse = " vs. ")
+        )
         hr_ci_upper_tbl <- rbind(hr_ci_upper_tbl, hr_ci_upper_tbl_new)
 
 
@@ -157,8 +167,8 @@ prepare_hr_forestly <- function(meta = NULL,
     hr_est = hr_est_tbl,
     hr_ci_lower = hr_ci_lower_tbl,
     hr_ci_upper = hr_ci_upper_tbl,
-    km_data = km_tbl)
+    km_data = km_tbl
+  )
 
   return(outdata)
-
 }
