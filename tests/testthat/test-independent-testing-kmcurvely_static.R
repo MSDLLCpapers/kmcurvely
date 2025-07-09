@@ -1,13 +1,14 @@
-
 # Example usage of kmcurvely function
 meta <- meta_tte_example()
 
 # extract specific population
-kmcur_data <- kmcurvely(meta = meta,
-                        population = "apat",
-                        observation = "efficacy_population",
-                        endpoint = "pfs",
-                        subgroup = "male;female")
+kmcur_data <- kmcurvely(
+  meta = meta,
+  population = "apat",
+  observation = "efficacy_population",
+  endpoint = "pfs",
+  subgroup = "male;female"
+)
 
 # Extract key data objects from the kmcur_data
 key_data_objects <- attr(kmcur_data, "key_data_objects")
@@ -46,5 +47,3 @@ if (file.exists(dest_dir)) {
 } else {
   cat(plot_zipfile, "file does not exist at", dest_dir, "\n")
 }
-
-
