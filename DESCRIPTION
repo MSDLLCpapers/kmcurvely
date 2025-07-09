@@ -6,6 +6,7 @@ Authors@R: c(
     person("Benjamin", "Wang", email = "benjamin.wang@merck.com", role = c("aut")),
     person("Shuo", "Geng", email = "shuo.geng1@merck.com", role = c("aut")),
     person("Chen", "Wang", email = "chen.wang16@merck.com", role = c("aut")),
+    person("Li", "Ma", role = "ctb"),
     person("Merck & Co., Inc., Rahway, NJ, USA and its affiliates", role = "cph")
     )
 Description: Interactive Kaplan-Meier plot for time-to-event analysis.
