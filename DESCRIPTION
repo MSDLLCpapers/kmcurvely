@@ -27,6 +27,7 @@ Imports:
     DT,
     r2rtf,
     plotly,
+    simtrial,
     uuid,
     patchwork,
     tibble,

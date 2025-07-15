@@ -8,7 +8,7 @@ kmcurvely(
   meta = meta_tte_example(),
   population = "apat",
   observation = "efficacy_population",
-  endpoint = "pfs;os",
+  endpoint = "pfs;ttde",
   subgroup = "male;female",
   x_label = NULL,
   y_label = "Survival rate",
@@ -23,7 +23,7 @@ kmcurvely(
 
 \item{observation}{A string indicating the observation population (e.g., "efficacy_population").}
 
-\item{endpoint}{A semicolon-separated string of endpoints to be analyzed (e.g., "pfs;os").}
+\item{endpoint}{A semicolon-separated string of endpoints to be analyzed (e.g., "pfs;ttde").}
 
 \item{subgroup}{A semicolon-separated string of subgroups to filter by (e.g., "male;female").}
 
@@ -45,11 +45,12 @@ Generate interactive KM plot by endpoints and subgroups
 # Example usage of kmcurvely function
 
 meta <- meta_tte_example()
-kmcurvely(meta = meta,
-           population = "apat",
-           observation = "efficacy_population",
-           endpoint = "pfs;os",
-           subgroup = "male;female")
-
+kmcurvely(
+  meta = meta,
+  population = "apat",
+  observation = "efficacy_population",
+  endpoint = "pfs;ttde",
+  subgroup = "male;female"
+)
 
 }
