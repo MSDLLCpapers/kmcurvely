@@ -41,5 +41,6 @@ test_that("kmcurvely produces expected zip file output", {
   # Check that the zip file exists in the destination directory
   plot_zipfile <- basename(out_kmplot)
   expect_true(file.exists(file.path(dest_dir, plot_zipfile)),
-              info = paste(plot_zipfile, "does not exist in", dest_dir))
+    info = paste(plot_zipfile, "does not exist in", dest_dir)
+  )
 })
