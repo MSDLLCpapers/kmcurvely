@@ -66,6 +66,8 @@ prepare_hr_forestly <- function(meta = NULL,
     dplyr::left_join(obs) |>
     dplyr::rename(dplyr::any_of(rename_lookup))
 
+  surv_data$treatment <- factor(surv_data$treatment, levels = arm_levels)
+
   # ----------------------------------------------- #
   #               run cox model or KM plots
   # ----------------------------------------------- #
@@ -74,6 +76,9 @@ prepare_hr_forestly <- function(meta = NULL,
   n_endpoint <- length(endpoint)
   n_subgroup <- length(subgroup)
   n_group <- length(unique(obs[[obs_group]]))
+  arm_comparison <- sapply(arm_levels[2:n_group], function(x) {
+    paste0(rev(c(arm_levels[1], x)), collapse = " vs. ")
+  }, USE.NAMES = FALSE)
 
   # tables to store sample size, events, HR and KM plotting data
   n_tbl <- NULL
@@ -85,69 +90,83 @@ prepare_hr_forestly <- function(meta = NULL,
 
   # loop for all possible endpoints
   for (endpt in endpoint) {
-    # loop for all possible comparisons between arms
-    for (comp in 2:n_group) {
-      # loop for all possible subgroups
-      for (subgrp in c("all", subgroup)) {
-        endpt_filter <- metalite::collect_adam_mapping(meta, endpt)$subset
-        endpt_label <- metalite::collect_adam_mapping(meta, endpt)$label
-        arm_selected <- arm_levels[c(1, comp)]
+    # loop for all possible subgroups
+    for (subgrp in c("all", subgroup)) {
+      endpt_filter <- metalite::collect_adam_mapping(meta, endpt)$subset
+      endpt_label <- metalite::collect_adam_mapping(meta, endpt)$label
 
-        # filter the TTE data given the endpoint, arm comparison and subgroup
-        if (subgrp == "all") {
-          data_sub <- surv_data |> filter(!!endpt_filter, treatment %in% arm_selected)
-          subgroup_label <- "All"
-        } else {
-          subgrp_filter <- metalite::collect_adam_mapping(meta, subgrp)$subset
-          subgroup_label <- metalite::collect_adam_mapping(meta, subgrp)$label
-          data_sub <- surv_data |> dplyr::filter(!!endpt_filter & !!subgrp_filter, treatment %in% arm_selected)
-        }
-
-        # set reference arms
-        data_sub$treatment <- factor(data_sub$treatment, levels = arm_levels[c(1, comp)])
-
-        # run cox model and get HR estimate of the given endpoint, given arm comparison and given subgroup
-        cox_model <- survival::coxph(survival::Surv(time, event) ~ treatment, data = data_sub)
-        cox_summary <- summary(cox_model)
-
-        #  get the sample size
-        n_tbl_new <- data.frame(
-          n = cox_summary$n,
-          endpoint = endpt_label, subgroup = subgroup_label, arm_comparision = paste0(rev(arm_selected), collapse = " vs. ")
-        )
-        n_tbl <- rbind(n_tbl, n_tbl_new)
-        #  get the events
-        event_tbl_new <- data.frame(
-          event = cox_summary$nevent,
-          endpoint = endpt_label, subgroup = subgroup_label, arm_comparision = paste0(rev(arm_selected), collapse = " vs. ")
-        )
-        event_tbl <- rbind(event_tbl, event_tbl_new)
-        #  get the HR point estimate
-        hr_est_tbl_new <- data.frame(
-          hr_est = cox_summary$coef[2],
-          endpoint = endpt_label, subgroup = subgroup_label, arm_comparision = paste0(rev(arm_selected), collapse = " vs. ")
-        )
-        hr_est_tbl <- rbind(hr_est_tbl, hr_est_tbl_new)
-        #  get the HR lower CI
-        hr_ci_lower_tbl_new <- data.frame(
-          hr_ci_lower = cox_summary$conf.int[, "lower .95"],
-          endpoint = endpt_label, subgroup = subgroup_label, arm_comparision = paste0(rev(arm_selected), collapse = " vs. ")
-        )
-        hr_ci_lower_tbl <- rbind(hr_ci_lower_tbl, hr_ci_lower_tbl_new)
-        #  get the HR upper CI
-        hr_ci_upper_tbl_new <- data.frame(
-          hr_ci_upper = cox_summary$conf.int[, "upper .95"],
-          endpoint = endpt_label, subgroup = subgroup_label, arm_comparision = paste0(rev(arm_selected), collapse = " vs. ")
-        )
-        hr_ci_upper_tbl <- rbind(hr_ci_upper_tbl, hr_ci_upper_tbl_new)
-
-
-        # get the data for KM plotting
-        km_tbl_new <- survival::survfit(survival::Surv(time, event) ~ treatment, data = data_sub, conf.type = "log-log") |>
-          km_extract() |>
-          dplyr::mutate(endpoint = endpt_label, subgroup = subgroup_label, arm_comparision = paste0(rev(arm_selected), collapse = " vs. "))
-        km_tbl <- rbind(km_tbl, km_tbl_new)
+      # filter the TTE data given the endpoint, arm comparison and subgroup
+      if (subgrp == "all") {
+        data_sub <- surv_data |> filter(!!endpt_filter)
+        subgroup_label <- "All"
+      } else {
+        subgrp_filter <- metalite::collect_adam_mapping(meta, subgrp)$subset
+        subgroup_label <- metalite::collect_adam_mapping(meta, subgrp)$label
+        data_sub <- surv_data |> dplyr::filter(!!endpt_filter & !!subgrp_filter)
       }
+
+      # run cox model and get HR estimate of the given endpoint, given arm comparison and given subgroup
+      cox_model <- lapply(2:n_group, function(x) {
+        data_sub_trt <- data_sub |> dplyr::filter(treatment %in% arm_levels[c(1, x)])
+        # set reference arms
+        data_sub_trt$treatment <- factor(data_sub_trt$treatment, levels = arm_levels[c(1, x)])
+        survival::coxph(survival::Surv(time, event) ~ treatment, data = data_sub_trt)
+      })
+
+      #  get the sample size
+      n_tbl_new <- lapply(cox_model, function(x) {
+        cox_summary <- summary(x)
+        cox_summary$n
+      })
+      n_tbl_new <- do.call("cbind", n_tbl_new) |> data.frame(endpt_label, subgroup_label)
+      names(n_tbl_new) <- c(paste0("n_", 2:n_group), "endpoint", "subgroup")
+      n_tbl <- rbind(n_tbl, n_tbl_new)
+
+      #  get the events
+      event_tbl_new <- lapply(cox_model, function(x) {
+        cox_summary <- summary(x)
+        cox_summary$nevent
+      })
+      event_tbl_new <- do.call("cbind", event_tbl_new) |> data.frame(endpt_label, subgroup_label)
+      names(event_tbl_new) <- c(paste0("event_", 2:n_group), "endpoint", "subgroup")
+      event_tbl <- rbind(event_tbl, event_tbl_new)
+
+      #  get the HR point estimate
+      hr_est_tbl_new <- lapply(cox_model, function(x) {
+        cox_summary <- summary(x)
+        cox_summary$coef[2]
+      })
+      hr_est_tbl_new <- do.call("cbind", hr_est_tbl_new) |> data.frame(endpt_label, subgroup_label)
+      names(hr_est_tbl_new) <- c(paste0("hr_est_", 2:n_group), "endpoint", "subgroup")
+      hr_est_tbl <- rbind(hr_est_tbl, hr_est_tbl_new)
+
+      #  get the HR lower CI
+      hr_ci_lower_tbl_new <- lapply(cox_model, function(x) {
+        cox_summary <- summary(x)
+        cox_summary$conf.int[, "lower .95"]
+      })
+      hr_ci_lower_tbl_new <- do.call("cbind", hr_ci_lower_tbl_new) |> data.frame(endpt_label, subgroup_label)
+      names(hr_ci_lower_tbl_new) <- c(paste0("hr_ci_lower_", 2:n_group), "endpoint", "subgroup")
+      hr_ci_lower_tbl <- rbind(hr_ci_lower_tbl, hr_ci_lower_tbl_new)
+
+      #  get the HR upper CI
+      hr_ci_upper_tbl_new <- lapply(cox_model, function(x) {
+        cox_summary <- summary(x)
+        cox_summary$conf.int[, "upper .95"]
+      })
+      hr_ci_upper_tbl_new <- do.call("cbind", hr_ci_upper_tbl_new) |> data.frame(endpt_label, subgroup_label)
+      names(hr_ci_upper_tbl_new) <- c(paste0("hr_ci_upper_", 2:n_group), "endpoint", "subgroup")
+      hr_ci_upper_tbl <- rbind(hr_ci_upper_tbl, hr_ci_upper_tbl_new)
+
+      # get the data for KM plotting
+      km_tbl_new <- survival::survfit(survival::Surv(time, event) ~ treatment, data = data_sub, conf.type = "log-log") |>
+        km_extract() |>
+        dplyr::mutate(
+          endpoint = endpt_label,
+          subgroup = subgroup_label,
+          text = paste0(endpoint, ": ", surv, "\n", "Number of participants at risk: ", n.risk)
+        )
+      km_tbl <- rbind(km_tbl, km_tbl_new)
     }
   }
 
@@ -160,8 +179,9 @@ prepare_hr_forestly <- function(meta = NULL,
     endpoint = endpoint,
     subgroup = subgroup,
     order = NULL,
-    group = NULL,
-    reference_group = NULL,
+    group = arm_levels,
+    reference_group = 1,
+    arm_comparison = arm_comparison,
     n = n_tbl,
     event = event_tbl,
     hr_est = hr_est_tbl,
