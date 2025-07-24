@@ -7,18 +7,17 @@
 #'   subgroup = "male;female",
 #'   arm_levels = c("Placebo", "Xanomeline Low Dose", "Xanomeline High Dose")
 #' ) |>
-#' format_hr_forestly(
-#'   hr_range = c(0, 3)
-#' ) |>
-#' hr_forestly(
-#'   width = 1400,
-#'   max_page = NULL
-#' )
+#'   format_hr_forestly(
+#'     hr_range = c(0, 3)
+#'   ) |>
+#'   hr_forestly(
+#'     width = 1400,
+#'     max_page = NULL
+#'   )
 #' Placeholder
 hr_forestly <- function(outdata,
                         width = 1400,
                         max_page = NULL) {
-
   # Create SharedData for forest plot data
   tbl <- crosstalk::SharedData$new(outdata$tbl)
 
@@ -49,34 +48,38 @@ hr_forestly <- function(outdata,
         cnr_details <- subset(t_details, n.censor >= 1)
 
         km_plot <- ggplot2::ggplot() +
-          ggplot2::geom_step(data = t_details,
-                             aes(x = .data$time, y = .data$surv, group = .data$strata,
-                                 colour =.data$strata,
-                                 text = .data$text
-                                 ),
-                             direction = "hv",
-                             size = 0.7) +
+          ggplot2::geom_step(
+            data = t_details,
+            aes(
+              x = .data$time, y = .data$surv, group = .data$strata,
+              colour = .data$strata,
+              text = .data$text
+            ),
+            direction = "hv",
+            size = 0.7
+          ) +
           ggplot2::scale_color_manual(values = outdata$color) +
           ggplot2::ylab(t_endpoint) +
           ggplot2::theme_bw()
 
         htmltools::div(
           htmltools::tagList(
-
             ggplotly(km_plot, tooltip = c("text"), dynamicTicks = TRUE) %>%
               highlight(on = "plotly_click", off = "plotly_doubleclick") %>%
-              add_trace(data = cnr_details,
-                        x = ~time,
-                        y = ~surv,
-                        color = ~strata,
-                        colors = outdata$color,
-                        group = ~strata,
-                        type = "scatter",
-                        mode = "markers",
-                        marker = list(symbol = "cross"),
-                        hoverinfo = "none",
-                        showlegend = FALSE,
-                        opacity = 1) %>%
+              add_trace(
+                data = cnr_details,
+                x = ~time,
+                y = ~surv,
+                color = ~strata,
+                colors = outdata$color,
+                group = ~strata,
+                type = "scatter",
+                mode = "markers",
+                marker = list(symbol = "cross"),
+                hoverinfo = "none",
+                showlegend = FALSE,
+                opacity = 1
+              ) %>%
               layout(
                 hovermode = "x unified",
                 legend = list(orientation = "h", y = -0.2)

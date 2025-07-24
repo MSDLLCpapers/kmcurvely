@@ -7,9 +7,9 @@
 #'   subgroup = "male;female",
 #'   arm_levels = c("Placebo", "Xanomeline Low Dose", "Xanomeline High Dose")
 #' ) |>
-#' format_hr_forestly(
-#'   hr_range = c(0, 3)
-#' )
+#'   format_hr_forestly(
+#'     hr_range = c(0, 3)
+#'   )
 format_hr_forestly <- function(outdata,
                                display = c("n", "event", "fig_hr"),
                                digits = 2,
@@ -21,7 +21,6 @@ format_hr_forestly <- function(outdata,
                                hr_range = NULL,
                                color = NULL,
                                hr_label = "Treatment <- Favor -> Placebo") {
-
   display <- match.arg(
     display,
     c("n", "event", "hr", "fig_hr"),
@@ -62,7 +61,9 @@ format_hr_forestly <- function(outdata,
     round(outdata$hr_ci_upper[1:n_group1], digits = digits),
     hr_fig = NA
   )
-  col_names <- sapply(2:n_group, function(x) {names(tbl)[grep(paste0(".+_", x), names(tbl))]}, simplify = FALSE) |> unlist()
+  col_names <- sapply(2:n_group, function(x) {
+    names(tbl)[grep(paste0(".+_", x), names(tbl))]
+  }, simplify = FALSE) |> unlist()
   tbl <- tbl[c("endpoint", "subgroup", col_names, "hr_fig")]
   rownames(tbl) <- NULL
 
@@ -77,7 +78,7 @@ format_hr_forestly <- function(outdata,
     fig_hr_range <- round(range(tbl_hr, na.rm = TRUE) + c(0, 2))
   } else {
     if (hr_range[1] > range(tbl_hr, na.rm = TRUE)[1] |
-        hr_range[2] < range(tbl_hr, na.rm = TRUE)[2]) {
+      hr_range[2] < range(tbl_hr, na.rm = TRUE)[2]) {
       warning("There are data points outside the specified range for hazard ratio.")
     }
     fig_hr_range <- hr_range
@@ -181,8 +182,10 @@ format_hr_forestly <- function(outdata,
   names(col_hr) <- hr_name
 
   # Define ci columns
-  ci_name <- c(names(outdata$hr_ci_lower)[1:n_group1],
-               names(outdata$hr_ci_upper)[1:n_group1])
+  ci_name <- c(
+    names(outdata$hr_ci_lower)[1:n_group1],
+    names(outdata$hr_ci_upper)[1:n_group1]
+  )
   col_ci <- lapply(
     ci_name,
     function(x) {
@@ -213,7 +216,7 @@ format_hr_forestly <- function(outdata,
   )
 
   # column hidden
-  columns <- lapply(columns, function (x) {
+  columns <- lapply(columns, function(x) {
     if (!"show" %in% names(x)) {
       x$show <- TRUE
     }
