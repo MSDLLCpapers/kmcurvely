@@ -20,7 +20,6 @@ hr_forestly <- function(outdata,
                         x_label = NULL,
                         width = 1400,
                         max_page = NULL) {
-
   time_unit <- match.arg(time_unit, choices = time_unit)
   if (is.null(x_label)) {
     x_label <- paste("Time in", time_unit)
@@ -62,18 +61,18 @@ hr_forestly <- function(outdata,
 
         # range of the x-axis
         xlimit <- switch(time_unit,
-                         "years"  = ceiling(max(t_details$time)),
-                         "months" = round((max(t_details$time) + 3), -1),
-                         "weeks"  = round((max(t_details$time) + 20) / 20) * 20,
-                         "days"   = round((max(t_details$time) + 60) / 60) * 60
+          "years"  = ceiling(max(t_details$time)),
+          "months" = round((max(t_details$time) + 3), -1),
+          "weeks"  = round((max(t_details$time) + 20) / 20) * 20,
+          "days"   = round((max(t_details$time) + 60) / 60) * 60
         )
 
         # intervals to break the x-axis
         break_x_by <- switch(time_unit,
-                             "years"  = max(ceiling(max(t_details$time) / 7), 1),
-                             "months" = max(round((max(t_details$time) / 7) / 3) * 3, 3),
-                             "weeks"  = max(round((max(t_details$time) / 7) / 20) * 20, 20),
-                             "days"   = max(round((max(t_details$time) / 7) / 60) * 60, 60)
+          "years"  = max(ceiling(max(t_details$time) / 7), 1),
+          "months" = max(round((max(t_details$time) / 7) / 3) * 3, 3),
+          "weeks"  = max(round((max(t_details$time) / 7) / 20) * 20, 20),
+          "days"   = max(round((max(t_details$time) / 7) / 60) * 60, 60)
         )
 
         # time points where number of risk is reported
@@ -164,7 +163,8 @@ hr_forestly <- function(outdata,
               tbl_at_risk_select,
               options = list(columnDefs = list(list(
                 visible = FALSE,
-                targets = c(0)))),
+                targets = c(0)
+              ))),
               rownames = FALSE
             )
           )
