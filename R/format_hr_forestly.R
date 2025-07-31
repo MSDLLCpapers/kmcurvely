@@ -41,7 +41,7 @@ format_hr_forestly <- function(outdata,
   # Input checking
   if (is.null(color)) {
     if (n_group <= 2) {
-      color <- c("#00857C", "#66203A")
+      color <- c("#66203A", "#00857C")
     } else {
       if (n_group1 > 3) stop("Please define color to display groups")
       color <- c("#66203A", rev(c("#00857C", "#6ECEB2", "#BFED33")[1:n_group1]))
@@ -75,7 +75,7 @@ format_hr_forestly <- function(outdata,
   )
 
   if (is.null(hr_range)) {
-    fig_hr_range <- round(range(tbl_hr, na.rm = TRUE) + c(0, 2))
+    fig_hr_range <- round(range(tbl_hr, na.rm = TRUE) + c(-0.5, 0.5))
   } else {
     if (hr_range[1] > range(tbl_hr, na.rm = TRUE)[1] |
       hr_range[2] < range(tbl_hr, na.rm = TRUE)[2]) {

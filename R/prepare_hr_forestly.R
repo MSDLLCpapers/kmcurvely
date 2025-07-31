@@ -60,11 +60,15 @@ prepare_hr_forestly <- function(meta = NULL,
   obs <- metalite::collect_observation_record(meta, population, observation, parameter = "", var = obs_var)
 
   # merge population and observation
-  rename_lookup <- c(time = "AVAL", event = "CNSR", treatment = obs_group)
+  rename_lookup <- c(time = "AVAL", treatment = obs_group)
 
   surv_data <- pop |>
     dplyr::left_join(obs) |>
-    dplyr::rename(dplyr::any_of(rename_lookup))
+    dplyr::mutate(
+      event = 1 - CNSR
+    ) |>
+    dplyr::rename(dplyr::any_of(rename_lookup)) |>
+    dplyr::filter(treatment %in% arm_levels)
 
   surv_data$treatment <- factor(surv_data$treatment, levels = arm_levels)
 
@@ -75,7 +79,7 @@ prepare_hr_forestly <- function(meta = NULL,
   subgroup <- unlist(strsplit(subgroup, ";"))
   n_endpoint <- length(endpoint)
   n_subgroup <- length(subgroup)
-  n_group <- length(unique(obs[[obs_group]]))
+  n_group <- length(unique(surv_data$treatment))
   arm_comparison <- sapply(arm_levels[2:n_group], function(x) {
     paste0(rev(c(arm_levels[1], x)), collapse = " vs. ")
   }, USE.NAMES = FALSE)
