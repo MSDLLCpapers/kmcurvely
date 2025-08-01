@@ -33,10 +33,12 @@ An metadata with HR per subgroup along with its KM plotting data
 Prepare the dataset for the HR forest plot, alongwith its KM plots
 }
 \examples{
-prepare_hr_forestly(meta = meta_tte_example_new(),
-                    population = "apat",
-                    observation = "efficacy_population",
-                    endpoint = "pfs;os",
-                    subgroup = "male;female",
-                    arm_levels = c("Placebo", "Xanomeline Low Dose", "Xanomeline High Dose"))
+prepare_hr_forestly(
+  meta = meta_tte_example_new(),
+  population = "apat",
+  observation = "efficacy_population",
+  endpoint = "pfs;os",
+  subgroup = "male;female",
+  arm_levels = c("Placebo", "Xanomeline Low Dose", "Xanomeline High Dose")
+)
 }
