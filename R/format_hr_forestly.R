@@ -1,3 +1,52 @@
+# Copyright (c) 2025 Merck & Co., Inc., Rahway, NJ, USA and its affiliates.
+# All rights reserved.
+#
+# This file is part of the kmcurvely program.
+#
+# kmcurvely is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#' Format the outdata for the HR forest plot, along with its KM plots
+#'
+#' @param outdata An `outdata` object created by [prepare_hr_forestly()].
+#' @param display A character vector specifying which columns to display in the forest plot.
+#'   Options include "n", "event", "hr", and "fig_hr".
+#'   Default is c("n", "event", "fig_hr").
+#'   - `n`: Number of participants in a comparison.
+#'   - `event`: Number of events in a comparison.
+#'   - `hr`: Hazard ratio estimate in a comparison.
+#'   - `fig_hr`: Hazard ratio figure in a comparison.
+#' @param digits A numeric value specifying the number of digits to
+#'    display for hazard ratios and confidence intervals. Default is 2.
+#' @param width_subgroup A numeric value specifying the width of
+#'    the subgroup column in pixels.
+#' @param width_fig A numeric value specifying the width of
+#'    the hazard ratio figure column in pixels.
+#' @param width_n A numeric value specifying the width of the "n" column in pixels.
+#' @param width_event A numeric value specifying the width of
+#'    the "event" column in pixels.
+#' @param width_hr A numeric value specifying the width of the hazard ratio column in pixels.
+#' @param footer_space A numeric value specifying the space for the footer in pixels.
+#' @param hr_range A numeric vector of lower and upper limit of x-axis
+#'    for the hazard ratio figure.
+#' @param color A character vector of colors to use for the hazard ratio figures.
+#'    Defaulte value supports up to 4 groups.
+#' @param hr_label A character string specifying the label for the hazard ratio axis.
+#'
+#' @return An `outdata` object.
+#'
+#' @export
+#'
 #' @examples
 #' prepare_hr_forestly(
 #'   meta = meta_tte_example_new(),
@@ -7,15 +56,14 @@
 #'   subgroup = "male;female",
 #'   arm_levels = c("Placebo", "Xanomeline Low Dose", "Xanomeline High Dose")
 #' ) |>
-#'   format_hr_forestly(
-#'     hr_range = c(0, 3)
-#'   )
+#'   format_hr_forestly()
 format_hr_forestly <- function(outdata,
                                display = c("n", "event", "fig_hr"),
                                digits = 2,
                                width_subgroup = 50,
                                width_fig = 320,
                                width_n = 40,
+                               width_event = 40,
                                width_hr = 40,
                                footer_space = 90,
                                hr_range = NULL,
@@ -75,7 +123,9 @@ format_hr_forestly <- function(outdata,
   )
 
   if (is.null(hr_range)) {
-    fig_hr_range <- round(range(tbl_hr, na.rm = TRUE) + c(-0.5, 0.5))
+    fig_hr_range <- range(tbl_hr, na.rm = TRUE) + c(-0.5, 0.5)
+    fig_hr_range[1] <- floor(fig_hr_range[1])
+    fig_hr_range[2] <- ceiling(fig_hr_range[2])
   } else {
     if (hr_range[1] > range(tbl_hr, na.rm = TRUE)[1] |
       hr_range[2] < range(tbl_hr, na.rm = TRUE)[2]) {
@@ -159,7 +209,7 @@ format_hr_forestly <- function(outdata,
   col_event <- lapply(name_event, function(x) {
     reactable::colDef(
       header = "#Events",
-      minWidth = width_n,
+      minWidth = width_event,
       align = "center"
     )
   })

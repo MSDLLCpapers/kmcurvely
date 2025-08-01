@@ -24,6 +24,7 @@
 #' @param endpoint A semicolon-separated string of endpoints to be analyzed (e.g., "pfs;os").
 #' @param subgroup A semicolon-separated string of subgroups to filter by (e.g., "male;female").
 #' @param arm_levels A vector of character specifying the levels of arms, starting with the reference arm.
+#'
 #' @return An metadata with HR per subgroup along with its KM plotting data
 #'
 #' @export
@@ -61,6 +62,14 @@ prepare_hr_forestly <- function(meta = NULL,
 
   # merge population and observation
   rename_lookup <- c(time = "AVAL", treatment = obs_group)
+
+  # Check arm levels
+  if (!all(arm_levels %in% unique(obs[[obs_group]]))) {
+    stop("`arm_levels` must be a character vector of treatment arms present in the input data.")
+  }
+  if (length(arm_levels) < 2) {
+    stop("`arm_levels` must contain at least two treatment arms, including the reference arm.")
+  }
 
   surv_data <- pop |>
     dplyr::left_join(obs) |>

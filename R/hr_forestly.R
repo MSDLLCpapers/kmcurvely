@@ -1,3 +1,35 @@
+# Copyright (c) 2025 Merck & Co., Inc., Rahway, NJ, USA and its affiliates.
+# All rights reserved.
+#
+# This file is part of the kmcurvely program.
+#
+# kmcurvely is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#' Display the HR forest plot, along with its KM plots
+#'
+#' @param outdata outdata An `outdata` object created by [format_hr_forestly()].
+#' @param time_unit A string specifying the unit of time in x-axis of the KM plot.
+#'    must be one of "days", "weeks", "months", or "years". Default is "days".
+#' @param width A numeric value of width of the entire plot in pixels. Default is 1000.
+#' @param height_kmoplot A numeric value of height of the KM plot in pixels. Default is 400.
+#' @param height_at_risk A numeric value of height of the at-risk table in pixels.
+#'    Default is 200.
+#' @param max_page A numeric value of maximum number of subgroups to display per page.
+#' @return An HR forest plot with subgroup KM plot saved as a `shiny.tag.list` object.
+#'
+#' @export
+#'
 #' @examples
 #' prepare_hr_forestly(
 #'   meta = meta_tte_example_new(),
@@ -7,22 +39,21 @@
 #'   subgroup = "male;female",
 #'   arm_levels = c("Placebo", "Xanomeline Low Dose", "Xanomeline High Dose")
 #' ) |>
-#'   format_hr_forestly(
-#'     hr_range = c(0, 3)
-#'   ) |>
-#'   hr_forestly(
-#'     width = 1400,
-#'     max_page = NULL
-#'   )
-#' Placeholder
+#'   format_hr_forestly() |>
+#'   hr_forestly()
 hr_forestly <- function(outdata,
                         time_unit = c("days", "weeks", "months", "years"),
-                        x_label = NULL,
-                        width = 1400,
+                        width = 1000,
+                        height_kmoplot = 400,
+                        height_at_risk = 200,
                         max_page = NULL) {
   time_unit <- match.arg(time_unit, choices = time_unit)
-  if (is.null(x_label)) {
-    x_label <- paste("Time in", time_unit)
+  x_label <- paste("Time in", time_unit)
+
+  if (is.null(max_page)) {
+    max_page <- if (length(unique(outdata$tbl$subgroup)) <= 100) c(10, 25, 50, 100) else c(10, 25, 50, 100, ceiling(length(unique(outdata$tbl$subgroup)) / 100) * 100)
+  } else {
+    max_page <- if (max_page <= 100) c(10, 25, 50, 100) else c(10, 25, 50, 100, max_page)
   }
 
   # Create SharedData for forest plot data
@@ -44,6 +75,8 @@ hr_forestly <- function(outdata,
       data = tbl,
       columns = outdata$reactable_columns,
       columnGroups = outdata$reactable_columns_group,
+      width = width,
+      pageSizeOptions = max_page,
       details = function(index) {
         t_row <- outdata$tbl$subgroup[index]
         t_endpoint <- outdata$tbl$endpoint[index]
@@ -55,27 +88,12 @@ hr_forestly <- function(outdata,
         )
         cnr_details <- subset(t_details, n.censor >= 1)
 
-        # at risk
-        # filter the endpoint and subgroup
-        # tbl_surv_sub <- tbl_surv %>% filter(endpoint == endpt_label, subgroup == subgrp_label)
-
-        # range of the x-axis
-        xlimit <- switch(time_unit,
-          "years"  = ceiling(max(t_details$time)),
-          "months" = round((max(t_details$time) + 3), -1),
-          "weeks"  = round((max(t_details$time) + 20) / 20) * 20,
-          "days"   = round((max(t_details$time) + 60) / 60) * 60
+        t_end <- subset(
+          outdata$km_data,
+            (toupper(outdata$km_data$endpoint) %in% toupper(t_endpoint))
         )
-
-        # intervals to break the x-axis
-        break_x_by <- switch(time_unit,
-          "years"  = max(ceiling(max(t_details$time) / 7), 1),
-          "months" = max(round((max(t_details$time) / 7) / 3) * 3, 3),
-          "weeks"  = max(round((max(t_details$time) / 7) / 20) * 20, 20),
-          "days"   = max(round((max(t_details$time) / 7) / 60) * 60, 60)
-        )
-
-        # time points where number of risk is reported
+        xlimit <- ceiling(max(t_end$time))
+        break_x_by <- max(ceiling(max(t_end$time) / 7), 1)
         break_x <- seq(0, xlimit, 1)
         selected_time <- seq(0, xlimit, break_x_by)
 
@@ -113,8 +131,8 @@ hr_forestly <- function(outdata,
           dplyr::rename(time = time_new)
 
         tbl_at_risk_select <- tbl_at_risk %>%
-          group_by(endpoint, subgroup, group) %>%
-          filter(row_number() %in% (selected_time + 1)) %>%
+          dplyr::group_by(endpoint, subgroup, group) %>%
+          dplyr::filter(row_number() %in% (selected_time + 1)) %>%
           tidyr::pivot_wider(names_from = time, values_from = n_at_risk)
 
         # Create kmplot
@@ -122,7 +140,9 @@ hr_forestly <- function(outdata,
           ggplot2::geom_step(
             data = t_details,
             aes(
-              x = .data$time, y = .data$surv, group = .data$strata,
+              x = .data$time,
+              y = .data$surv,
+              group = .data$strata,
               colour = .data$strata,
               text = .data$text
             ),
@@ -132,11 +152,15 @@ hr_forestly <- function(outdata,
           ggplot2::scale_color_manual(values = outdata$color) +
           ggplot2::ylab(t_endpoint) +
           ggplot2::xlab(x_label) +
+          ggplot2::scale_y_continuous(breaks = seq(0, 1, 0.1)) +
+          ggplot2::scale_x_continuous(breaks = selected_time) +
+          # ggplot2::scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.1), labels = as.character(seq(0, 1, 0.1))) +
+          # ggplot2::scale_x_continuous(limits = c(0, xlimit), breaks = selected_time, labels = as.character(selected_time)) +
           ggplot2::theme_bw()
 
         htmltools::div(
           htmltools::tagList(
-            ggplotly(km_plot, tooltip = c("text"), dynamicTicks = TRUE) %>%
+            ggplotly(km_plot, tooltip = c("text"), dynamicTicks = FALSE, height = height_kmoplot) %>%
               highlight(on = "plotly_click", off = "plotly_doubleclick") %>%
               add_trace(
                 data = cnr_details,
@@ -154,17 +178,22 @@ hr_forestly <- function(outdata,
               ) %>%
               layout(
                 hovermode = "x unified",
-                legend = list(orientation = "h", y = -0.2)
-                # title = list(text = "Kaplan-Meier curves")
+                legend = list(title = "", orientation = "h", y = -0.2)
               ),
             # at-risk table
             "Number of participants at risk",
             DT::datatable(
               tbl_at_risk_select,
-              options = list(columnDefs = list(list(
-                visible = FALSE,
-                targets = c(0)
-              ))),
+              colnames = c(" " = 1),
+              height = height_at_risk,
+              options = list(
+                dom = "t",
+                ordering = FALSE,
+                columnDefs = list(list(
+                  visible = FALSE,
+                  targets = c(1, 2))
+                )
+              ),
               rownames = FALSE
             )
           )
