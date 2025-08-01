@@ -125,7 +125,7 @@ format_hr_forestly <- function(outdata,
   if (is.null(hr_range)) {
     fig_hr_range <- range(tbl_hr, na.rm = TRUE)
     fig_hr_range[1] <- max(floor(fig_hr_range[1]), 0)
-    fig_hr_range[2] <- if ((ceiling(fig_hr_range[2]) - fig_hr_range[2]) > 0.2 ) ceiling(fig_hr_range[2]) else ceiling(fig_hr_range[2]) + 0.5
+    fig_hr_range[2] <- if ((ceiling(fig_hr_range[2]) - fig_hr_range[2]) > 0.2) ceiling(fig_hr_range[2]) else ceiling(fig_hr_range[2]) + 0.5
   } else {
     if (hr_range[1] > range(tbl_hr, na.rm = TRUE)[1] |
       hr_range[2] < range(tbl_hr, na.rm = TRUE)[2]) {
