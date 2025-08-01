@@ -90,7 +90,7 @@ hr_forestly <- function(outdata,
 
         t_end <- subset(
           outdata$km_data,
-            (toupper(outdata$km_data$endpoint) %in% toupper(t_endpoint))
+          (toupper(outdata$km_data$endpoint) %in% toupper(t_endpoint))
         )
         xlimit <- ceiling(max(t_end$time))
         break_x_by <- max(ceiling(max(t_end$time) / 7), 1)
@@ -191,8 +191,8 @@ hr_forestly <- function(outdata,
                 ordering = FALSE,
                 columnDefs = list(list(
                   visible = FALSE,
-                  targets = c(1, 2))
-                )
+                  targets = c(1, 2)
+                ))
               ),
               rownames = FALSE
             )
