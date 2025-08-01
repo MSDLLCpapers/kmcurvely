@@ -87,10 +87,13 @@ kmcurvely <- function(meta = meta_tte_example(),
   obs <- metalite::collect_observation_record(meta, population, observation, parameter = "", var = obs_var)
 
   # merge population and observation
-  rename_lookup <- c(time = "AVAL", event = "CNSR", treatment = obs_group)
+  rename_lookup <- c(time = "AVAL", treatment = obs_group)
 
   surv_data <- pop %>%
     dplyr::left_join(obs) %>%
+    dplyr::mutate(
+      event = 1 - CNSR
+    ) %>%
     dplyr::rename(dplyr::any_of(rename_lookup))
 
   # ----------------------------------------------- #
