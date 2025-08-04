@@ -31,7 +31,10 @@ Imports:
     patchwork,
     tibble,
     tidyr,
-    zip
+    zip,
+    reactable,
+    reactR,
+    glue
 Suggests:
     covr,
     knitr,

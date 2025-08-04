@@ -137,7 +137,7 @@ format_hr_forestly <- function(outdata,
 
   iter <- 1:ncol(outdata$hr_est[1:n_group1]) - 1
   text <- glue::glue("x[{iter}] + '(' + x_lower[{iter}] + ', ' + x_upper[{iter}] + ')'")
-  js_hr_fig_cell <- forestly:::sparkline_point_js(
+  js_hr_fig_cell <- sparkline_point_js(
     tbl = tbl,
     type = "cell",
     x = names(outdata$hr_est)[1:n_group1],
@@ -152,7 +152,7 @@ format_hr_forestly <- function(outdata,
   )
 
   # Function to create Axis
-  js_hr_fig_footer <- forestly:::sparkline_point_js(
+  js_hr_fig_footer <- sparkline_point_js(
     tbl = data.frame(x = 1),
     x = "x",
     y = -1,

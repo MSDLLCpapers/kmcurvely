@@ -229,8 +229,20 @@ hr_forestly <- function(outdata,
     htmltools::tagList(
       html_content,
       reactR::html_dependency_react(TRUE),
-      forestly:::html_dependency_plotly(TRUE),
-      forestly:::html_dependency_react_plotly(TRUE),
+      hd <- htmltools::htmlDependency(
+        name = "plotly",
+        version = "1.58.5",
+        src = system.file("js", package = "kmcurvely"),
+        script = c("plotly-min.js"),
+        all_files = FALSE
+      ),
+      htmltools::htmlDependency(
+        name = "react-plotly",
+        version = "1.0.2",
+        src = system.file("js", package = "kmcurvely"),
+        script = c("create-plotly-component.js"),
+        all_files = FALSE
+      ),
       p
     )
   )
