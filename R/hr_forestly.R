@@ -21,6 +21,8 @@
 #' @param outdata outdata An `outdata` object created by [format_hr_forestly()].
 #' @param time_unit A string specifying the unit of time in x-axis of the KM plot.
 #'    must be one of "days", "weeks", "months", or "years". Default is "days".
+#' @param y_label_kmplot A string specifying the y-axis label of the KM plot.
+#'    Default is "Survival Probability".
 #' @param width A numeric value of width of the entire plot in pixels. Default is 1000.
 #' @param height_kmoplot A numeric value of height of the KM plot in pixels. Default is 400.
 #' @param height_at_risk A numeric value of height of the at-risk table in pixels.
@@ -43,6 +45,7 @@
 #'   hr_forestly()
 hr_forestly <- function(outdata,
                         time_unit = c("days", "weeks", "months", "years"),
+                        y_label_kmplot = "Survival Probability",
                         width = 1000,
                         height_kmoplot = 400,
                         height_at_risk = 200,
@@ -81,123 +84,125 @@ hr_forestly <- function(outdata,
         t_row <- outdata$tbl$subgroup[index]
         t_endpoint <- outdata$tbl$endpoint[index]
 
-        t_details <- subset(
-          outdata$km_data,
-          (toupper(outdata$km_data$subgroup) %in% toupper(t_row)) &
-            (toupper(outdata$km_data$endpoint) %in% toupper(t_endpoint))
-        )
-        cnr_details <- subset(t_details, n.censor >= 1)
-
-        t_end <- subset(
-          outdata$km_data,
-          (toupper(outdata$km_data$endpoint) %in% toupper(t_endpoint))
-        )
-        xlimit <- ceiling(max(t_end$time))
-        break_x_by <- max(ceiling(max(t_end$time) / 7), 1)
-        break_x <- seq(0, xlimit, 1)
-        selected_time <- seq(0, xlimit, break_x_by)
-
-        # a table summarizing the number of patients at risk
-        tbl_at_risk <- lapply(break_x, function(tau) {
-          sapply(split(t_details, t_details$strata), function(x) subset(x, time > tau)[1, "n.risk"])
-        })
-
-        tbl_at_risk <- do.call(cbind, tbl_at_risk)
-        tbl_at_risk[is.na(tbl_at_risk)] <- 0
-
-        # a wide table with n-group rows and n-time columns
-        tbl_at_risk <- tibble::as_tibble(tbl_at_risk) %>%
-          dplyr::mutate(
-            group = row.names(tbl_at_risk),
-            endpoint = t_endpoint,
-            subgroup = t_row
+        if (toupper(t_row) %in% toupper(outdata$kmcurves)) {
+          t_details <- subset(
+            outdata$km_data,
+            (toupper(outdata$km_data$subgroup) %in% toupper(t_row)) &
+              (toupper(outdata$km_data$endpoint) %in% toupper(t_endpoint))
           )
+          cnr_details <- subset(t_details, n.censor >= 1)
 
-        # a wide table with n-group rows and n-selected time columns
-        tbl_at_risk_new_wide <- tbl_at_risk[, colnames(tbl_at_risk) %in% c("endpoint", "subgroup", "group", paste0("V", selected_time + 1))] %>%
-          select("endpoint", "subgroup", "group", everything())
+          t_end <- subset(
+            outdata$km_data,
+            (toupper(outdata$km_data$endpoint) %in% toupper(t_endpoint))
+          )
+          xlimit <- ceiling(max(t_end$time))
+          break_x_by <- max(ceiling(max(t_end$time) / 7), 1)
+          break_x <- seq(0, xlimit, 1)
+          selected_time <- seq(0, xlimit, break_x_by)
 
-        colnames(tbl_at_risk_new_wide) <- c("endpoint", "subgroup", "group", selected_time)
+          # a table summarizing the number of patients at risk
+          tbl_at_risk <- lapply(break_x, function(tau) {
+            sapply(split(t_details, t_details$strata), function(x) subset(x, time > tau)[1, "n.risk"])
+          })
 
-        # a long table with each row for the survival prob at 1 endpoint 1 group 1 time point
-        tbl_at_risk <- tbl_at_risk %>%
-          tidyr::pivot_longer(
-            cols = starts_with("V"),
-            names_to = "time",
-            values_to = "n_at_risk"
-          ) %>%
-          left_join(tibble::tibble(time = paste0("V", 1:length(break_x)), time_new = break_x)) %>%
-          select(-time) %>%
-          dplyr::rename(time = time_new)
+          tbl_at_risk <- do.call(cbind, tbl_at_risk)
+          tbl_at_risk[is.na(tbl_at_risk)] <- 0
 
-        tbl_at_risk_select <- tbl_at_risk %>%
-          dplyr::group_by(endpoint, subgroup, group) %>%
-          dplyr::filter(row_number() %in% (selected_time + 1)) %>%
-          tidyr::pivot_wider(names_from = time, values_from = n_at_risk)
+          # a wide table with n-group rows and n-time columns
+          tbl_at_risk <- tibble::as_tibble(tbl_at_risk) %>%
+            dplyr::mutate(
+              group = row.names(tbl_at_risk),
+              endpoint = t_endpoint,
+              subgroup = t_row
+            )
 
-        # Create kmplot
-        km_plot <- ggplot2::ggplot() +
-          ggplot2::geom_step(
-            data = t_details,
-            aes(
-              x = .data$time,
-              y = .data$surv,
-              group = .data$strata,
-              colour = .data$strata,
-              text = .data$text
-            ),
-            direction = "hv",
-            size = 0.7
-          ) +
-          ggplot2::scale_color_manual(values = outdata$color) +
-          ggplot2::ylab(t_endpoint) +
-          ggplot2::xlab(x_label) +
-          ggplot2::scale_y_continuous(breaks = seq(0, 1, 0.1)) +
-          ggplot2::scale_x_continuous(breaks = selected_time) +
-          # ggplot2::scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.1), labels = as.character(seq(0, 1, 0.1))) +
-          # ggplot2::scale_x_continuous(limits = c(0, xlimit), breaks = selected_time, labels = as.character(selected_time)) +
-          ggplot2::theme_bw()
+          # a wide table with n-group rows and n-selected time columns
+          tbl_at_risk_new_wide <- tbl_at_risk[, colnames(tbl_at_risk) %in% c("endpoint", "subgroup", "group", paste0("V", selected_time + 1))] %>%
+            select("endpoint", "subgroup", "group", everything())
 
-        htmltools::div(
-          htmltools::tagList(
-            ggplotly(km_plot, tooltip = c("text"), dynamicTicks = FALSE, height = height_kmoplot) %>%
-              highlight(on = "plotly_click", off = "plotly_doubleclick") %>%
-              add_trace(
-                data = cnr_details,
-                x = ~time,
-                y = ~surv,
-                color = ~strata,
-                colors = outdata$color,
-                group = ~strata,
-                type = "scatter",
-                mode = "markers",
-                marker = list(symbol = "cross"),
-                hoverinfo = "none",
-                showlegend = FALSE,
-                opacity = 1
-              ) %>%
-              layout(
-                hovermode = "x unified",
-                legend = list(title = "", orientation = "h", y = -0.2)
+          colnames(tbl_at_risk_new_wide) <- c("endpoint", "subgroup", "group", selected_time)
+
+          # a long table with each row for the survival prob at 1 endpoint 1 group 1 time point
+          tbl_at_risk <- tbl_at_risk %>%
+            tidyr::pivot_longer(
+              cols = starts_with("V"),
+              names_to = "time",
+              values_to = "n_at_risk"
+            ) %>%
+            dplyr::left_join(tibble::tibble(time = paste0("V", 1:length(break_x)), time_new = break_x), by = "time") %>%
+            dplyr::select(-time) %>%
+            dplyr::rename(time = time_new)
+
+          tbl_at_risk_select <- tbl_at_risk %>%
+            dplyr::group_by(endpoint, subgroup, group) %>%
+            dplyr::filter(row_number() %in% (selected_time + 1)) %>%
+            tidyr::pivot_wider(names_from = time, values_from = n_at_risk)
+
+          # Create kmplot
+          km_plot <- ggplot2::ggplot() +
+            ggplot2::geom_step(
+              data = t_details,
+              aes(
+                x = .data$time,
+                y = .data$surv,
+                group = .data$strata,
+                colour = .data$strata,
+                text = .data$text
               ),
-            # at-risk table
-            "Number of participants at risk",
-            DT::datatable(
-              tbl_at_risk_select,
-              colnames = c(" " = 1),
-              height = height_at_risk,
-              options = list(
-                dom = "t",
-                ordering = FALSE,
-                columnDefs = list(list(
-                  visible = FALSE,
-                  targets = c(1, 2)
-                ))
-              ),
-              rownames = FALSE
+              direction = "hv",
+              size = 0.7
+            ) +
+            ggplot2::scale_color_manual(values = outdata$color) +
+            ggplot2::ylab(y_label_kmplot) +
+            ggplot2::xlab(x_label) +
+            ggplot2::scale_y_continuous(breaks = seq(0, 1, 0.1)) +
+            ggplot2::scale_x_continuous(breaks = selected_time) +
+            # ggplot2::scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.1), labels = as.character(seq(0, 1, 0.1))) +
+            # ggplot2::scale_x_continuous(limits = c(0, xlimit), breaks = selected_time, labels = as.character(selected_time)) +
+            ggplot2::theme_bw()
+
+          htmltools::div(
+            htmltools::tagList(
+              ggplotly(km_plot, tooltip = c("text"), dynamicTicks = FALSE, height = height_kmoplot) %>%
+                highlight(on = "plotly_click", off = "plotly_doubleclick") %>%
+                add_trace(
+                  data = cnr_details,
+                  x = ~time,
+                  y = ~surv,
+                  color = ~strata,
+                  colors = outdata$color,
+                  group = ~strata,
+                  type = "scatter",
+                  mode = "markers",
+                  marker = list(symbol = "cross"),
+                  hoverinfo = "none",
+                  showlegend = FALSE,
+                  opacity = 1
+                ) %>%
+                layout(
+                  hovermode = "x unified",
+                  legend = list(title = "", orientation = "h", y = -0.2)
+                ),
+              # at-risk table
+              "Number of participants at risk",
+              DT::datatable(
+                tbl_at_risk_select,
+                colnames = c(" " = 1),
+                height = height_at_risk,
+                options = list(
+                  dom = "t",
+                  ordering = FALSE,
+                  columnDefs = list(list(
+                    visible = FALSE,
+                    targets = c(1, 2)
+                  ))
+                ),
+                rownames = FALSE
+              )
             )
           )
-        )
+        }
       }
     )
 
