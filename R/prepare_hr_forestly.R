@@ -23,6 +23,9 @@
 #' @param observation A string indicating the observation population (e.g., "efficacy_population").
 #' @param endpoint A semicolon-separated string of endpoints to be analyzed (e.g., "pfs;os").
 #' @param subgroup A semicolon-separated string of subgroups to filter by (e.g., "male;female").
+#'    Use "all" to include the result for overall population (e.g., "all;male;female").
+#' @param km_curves A semicolon-separated string of subgroups for which KM curves should be plotted.
+#'    Defaults to the same as `subgroup`.
 #' @param arm_levels A vector of character specifying the levels of arms, starting with the reference arm.
 #'
 #' @return An metadata with HR per subgroup along with its KM plotting data
@@ -43,6 +46,7 @@ prepare_hr_forestly <- function(meta = NULL,
                                 observation = NULL,
                                 endpoint = NULL,
                                 subgroup = NULL,
+                                km_curves = subgroup,
                                 arm_levels = NULL) {
   # obtain population/observation variables
   pop_var <- metalite::collect_adam_mapping(meta, population)$var
@@ -72,10 +76,11 @@ prepare_hr_forestly <- function(meta = NULL,
   }
 
   surv_data <- pop |>
-    dplyr::left_join(obs) |>
+    dplyr::left_join(obs, by = "USUBJID", suffix = c("", ".pop")) |>
     dplyr::mutate(
       event = 1 - CNSR
     ) |>
+    dplyr::select(-ends_with(".pop")) |>
     dplyr::rename(dplyr::any_of(rename_lookup)) |>
     dplyr::filter(treatment %in% arm_levels)
 
@@ -86,6 +91,7 @@ prepare_hr_forestly <- function(meta = NULL,
   # ----------------------------------------------- #
   endpoint <- unlist(strsplit(endpoint, ";"))
   subgroup <- unlist(strsplit(subgroup, ";"))
+  km_curves <- unlist(strsplit(km_curves, ";"))
   n_endpoint <- length(endpoint)
   n_subgroup <- length(subgroup)
   n_group <- length(unique(surv_data$treatment))
@@ -100,16 +106,17 @@ prepare_hr_forestly <- function(meta = NULL,
   hr_ci_lower_tbl <- NULL
   hr_ci_upper_tbl <- NULL
   km_tbl <- NULL
+  kmcurves <- NULL
 
   # loop for all possible endpoints
   for (endpt in endpoint) {
     # loop for all possible subgroups
-    for (subgrp in c("all", subgroup)) {
+    for (subgrp in subgroup) {
       endpt_filter <- metalite::collect_adam_mapping(meta, endpt)$subset
       endpt_label <- metalite::collect_adam_mapping(meta, endpt)$label
 
       # filter the TTE data given the endpoint, arm comparison and subgroup
-      if (subgrp == "all") {
+      if (toupper(subgrp) == "ALL") {
         data_sub <- surv_data |> filter(!!endpt_filter)
         subgroup_label <- "All"
       } else {
@@ -172,14 +179,17 @@ prepare_hr_forestly <- function(meta = NULL,
       hr_ci_upper_tbl <- rbind(hr_ci_upper_tbl, hr_ci_upper_tbl_new)
 
       # get the data for KM plotting
-      km_tbl_new <- survival::survfit(survival::Surv(time, event) ~ treatment, data = data_sub, conf.type = "log-log") |>
-        km_extract() |>
-        dplyr::mutate(
-          endpoint = endpt_label,
-          subgroup = subgroup_label,
-          text = paste0(endpoint, ": ", surv, "\n", "Number of participants at risk: ", n.risk)
-        )
-      km_tbl <- rbind(km_tbl, km_tbl_new)
+      if (toupper(subgrp) %in% toupper(km_curves)) {
+        kmcurves <- c(kmcurves, subgroup_label)
+        km_tbl_new <- survival::survfit(survival::Surv(time, event) ~ treatment, data = data_sub, conf.type = "log-log") |>
+          km_extract() |>
+          dplyr::mutate(
+            endpoint = endpt_label,
+            subgroup = subgroup_label,
+            text = paste0(endpoint, ": ", surv, "\n", "Number of participants at risk: ", n.risk)
+          )
+        km_tbl <- rbind(km_tbl, km_tbl_new)
+      }
     }
   }
 
@@ -191,6 +201,7 @@ prepare_hr_forestly <- function(meta = NULL,
     parameter = NULL,
     endpoint = endpoint,
     subgroup = subgroup,
+    kmcurves = kmcurves,
     order = NULL,
     group = arm_levels,
     reference_group = 1,
