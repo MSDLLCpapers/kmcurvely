@@ -7,6 +7,7 @@
 hr_forestly(
   outdata,
   time_unit = c("days", "weeks", "months", "years"),
+  y_label_kmplot = "Survival Probability",
   width = 1000,
   height_kmoplot = 400,
   height_at_risk = 200,
@@ -18,6 +19,9 @@ hr_forestly(
 
 \item{time_unit}{A string specifying the unit of time in x-axis of the KM plot.
 must be one of "days", "weeks", "months", or "years". Default is "days".}
+
+\item{y_label_kmplot}{A string specifying the y-axis label of the KM plot.
+Default is "Survival Probability".}
 
 \item{width}{A numeric value of width of the entire plot in pixels. Default is 1000.}
 

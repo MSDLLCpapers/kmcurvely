@@ -10,6 +10,7 @@ prepare_hr_forestly(
   observation = NULL,
   endpoint = NULL,
   subgroup = NULL,
+  km_curves = subgroup,
   arm_levels = NULL
 )
 }
@@ -22,7 +23,11 @@ prepare_hr_forestly(
 
 \item{endpoint}{A semicolon-separated string of endpoints to be analyzed (e.g., "pfs;os").}
 
-\item{subgroup}{A semicolon-separated string of subgroups to filter by (e.g., "male;female").}
+\item{subgroup}{A semicolon-separated string of subgroups to filter by (e.g., "male;female").
+Use "all" to include the result for overall population (e.g., "all;male;female").}
+
+\item{km_curves}{A semicolon-separated string of subgroups for which KM curves should be plotted.
+Defaults to the same as \code{subgroup}.}
 
 \item{arm_levels}{A vector of character specifying the levels of arms, starting with the reference arm.}
 }
