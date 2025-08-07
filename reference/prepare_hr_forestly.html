@@ -63,6 +63,7 @@
 <span>  observation <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  endpoint <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  subgroup <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  km_curves <span class="op">=</span> <span class="va">subgroup</span>,</span>
 <span>  arm_levels <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -88,7 +89,13 @@
 
 
 <dt id="arg-subgroup">subgroup<a class="anchor" aria-label="anchor" href="#arg-subgroup"></a></dt>
-<dd><p>A semicolon-separated string of subgroups to filter by (e.g., "male;female").</p></dd>
+<dd><p>A semicolon-separated string of subgroups to filter by (e.g., "male;female").
+Use "all" to include the result for overall population (e.g., "all;male;female").</p></dd>
+
+
+<dt id="arg-km-curves">km_curves<a class="anchor" aria-label="anchor" href="#arg-km-curves"></a></dt>
+<dd><p>A semicolon-separated string of subgroups for which KM curves should be plotted.
+Defaults to the same as <code>subgroup</code>.</p></dd>
 
 
 <dt id="arg-arm-levels">arm_levels<a class="anchor" aria-label="anchor" href="#arg-arm-levels"></a></dt>
@@ -102,31 +109,32 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">prepare_hr_forestly</span><span class="op">(</span>meta <span class="op">=</span> <span class="fu"><a href="meta_tte_example_new.html">meta_tte_example_new</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                    population <span class="op">=</span> <span class="st">"apat"</span>,</span></span>
-<span class="r-in"><span>                    observation <span class="op">=</span> <span class="st">"efficacy_population"</span>,</span></span>
-<span class="r-in"><span>                    endpoint <span class="op">=</span> <span class="st">"pfs;os"</span>,</span></span>
-<span class="r-in"><span>                    subgroup <span class="op">=</span> <span class="st">"male;female"</span>,</span></span>
-<span class="r-in"><span>                    arm_levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Placebo"</span>, <span class="st">"Xanomeline Low Dose"</span>, <span class="st">"Xanomeline High Dose"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Joining with `by = join_by(USUBJID, SEX)`</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Ran out of iterations and did not converge</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Loglik converged before variable  1 ; coefficient may be infinite. </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> List of 15</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">prepare_hr_forestly</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  meta <span class="op">=</span> <span class="fu"><a href="meta_tte_example_new.html">meta_tte_example_new</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  population <span class="op">=</span> <span class="st">"apat"</span>,</span></span>
+<span class="r-in"><span>  observation <span class="op">=</span> <span class="st">"efficacy_population"</span>,</span></span>
+<span class="r-in"><span>  endpoint <span class="op">=</span> <span class="st">"pfs;os"</span>,</span></span>
+<span class="r-in"><span>  subgroup <span class="op">=</span> <span class="st">"male;female"</span>,</span></span>
+<span class="r-in"><span>  arm_levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Placebo"</span>, <span class="st">"Xanomeline Low Dose"</span>, <span class="st">"Xanomeline High Dose"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> List of 17</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ meta           :List of 7</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ population     : chr "apat"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ observation    : chr "efficacy_population"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ parameter      : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ n              :'data.frame':	12 obs. of  4 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ n              :'data.frame':	4 obs. of  4 variables:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ order          : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ group          : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ reference_group: NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ group          : chr [1:3] "Placebo" "Xanomeline Low Dose" "Xanomeline High Dose"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ reference_group: num 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ endpoint       : chr [1:2] "pfs" "os"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ subgroup       : chr [1:2] "male" "female"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ event          :'data.frame':	12 obs. of  4 variables:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ hr_est         :'data.frame':	12 obs. of  4 variables:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ hr_ci_lower    :'data.frame':	12 obs. of  4 variables:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ hr_ci_upper    :'data.frame':	12 obs. of  4 variables:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ km_data        :'data.frame':	2528 obs. of  12 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ kmcurves       : chr [1:4] "Male" "Female" "Male" "Female"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ arm_comparison : chr [1:2] "Xanomeline Low Dose vs. Placebo" "Xanomeline High Dose vs. Placebo"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ event          :'data.frame':	4 obs. of  4 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ hr_est         :'data.frame':	4 obs. of  4 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ hr_ci_lower    :'data.frame':	4 obs. of  4 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ hr_ci_upper    :'data.frame':	4 obs. of  4 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ km_data        :'data.frame':	1416 obs. of  12 variables:</span>
 </code></pre></div>
     </div>
   </div>
