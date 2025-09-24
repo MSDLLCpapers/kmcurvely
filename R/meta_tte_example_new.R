@@ -113,7 +113,7 @@ meta_tte_example_new <- function() {
       name = "apat",
       group = "TRT01P",
       subset = quote(EFFFL == "Y"),
-      var = c("USUBJID", "TRT01P", "SEX")
+      var = c("USUBJID", "TRT01P", "SEX", "AGEGR1")
     ) |>
     metalite::define_observation(
       name = "efficacy_population",
@@ -141,6 +141,21 @@ meta_tte_example_new <- function() {
       name = "female",
       subset = SEX == "F",
       label = "Female"
+    ) |>
+    metalite::define_parameter(
+      name = "age<65",
+      subset = AGEGR1 == "<65",
+      label = "Age < 65"
+    ) |>
+    metalite::define_parameter(
+      name = "age65-80",
+      subset = AGEGR1 == "65-80",
+      label = "Age 65-80"
+    ) |>
+    metalite::define_parameter(
+      name = "age>80",
+      subset = AGEGR1 == ">80",
+      label = "Age > 80"
     ) |>
     metalite::define_analysis(
       name = "interactive_km_curve",

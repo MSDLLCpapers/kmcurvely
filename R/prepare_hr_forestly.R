@@ -38,7 +38,8 @@
 #'   population = "apat",
 #'   observation = "efficacy_population",
 #'   endpoint = "pfs;os",
-#'   subgroup = "male;female",
+#'   subgroup = "age<65;age65-80;age>80;male;female",
+#'   km_curves = "female;age65-80",
 #'   arm_levels = c("Placebo", "Xanomeline Low Dose", "Xanomeline High Dose")
 #' )
 prepare_hr_forestly <- function(meta = NULL,
