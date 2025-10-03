@@ -54,22 +54,26 @@ meta <- meta_tte_example()
 We generate the data required for plotting Kaplan-Meier curves by using the `kmcurvely` function. In this example, we extract the data for the "apat" population, focusing on the "efficacy_population" observation, the "pfs" endpoint, and gender subgroups.
 
 ```{r}
-kmcurvely(meta = meta,
-          population = "apat",
-          observation = "efficacy_population",
-          endpoint = "pfs",
-          subgroup = "male;female")
+kmcurvely(
+  meta = meta,
+  population = "apat",
+  observation = "efficacy_population",
+  endpoint = "pfs",
+  subgroup = "male;female"
+)
 ```
 ## Step 3: Generate KM plot (static)
 
 We create key data objects containing survival data, at-risk tables, axis labels, color schemes, and plot limits, which are essential for creating the Kaplan-Meier curves and attached it as an attribute to the "kmcur_data" object.
 
 ```{r}
-kmcur_data <- kmcurvely(meta = meta,
-                        population = "apat",
-                        observation = "efficacy_population",
-                        endpoint = "pfs",
-                        subgroup = "male;female")
+kmcur_data <- kmcurvely(
+  meta = meta,
+  population = "apat",
+  observation = "efficacy_population",
+  endpoint = "pfs",
+  subgroup = "male;female"
+)
 ```
 
 Extract key data objects from "key_data_objects" attribute that has been saved to the "kmcur_data" object.
@@ -81,7 +85,6 @@ key_data <- attr(kmcur_data, "key_data_objects")
 Then, create static Kaplan-Meier plots via `kmcurvely_static` function with the key data objects extracted from the "kmcur_data". 
 
 ```{r}
-
 out_kmplot <- kmcurvely_static(
   surv_shared = key_data$tbl_surv,
   tbl_at_risk = key_data$tbl_at_risk,
@@ -107,7 +110,6 @@ if (!dir.exists(dest_dir)) {
 
 # Copy the output zip file to the destination directory
 file.copy(from = out_kmplot, to = dest_dir, overwrite = TRUE)
-
 ```
 
                         
