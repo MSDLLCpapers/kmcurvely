@@ -67,10 +67,9 @@ adtte$TRT01P <- factor(adtte$TRT01P,
 Manually add new endpoints that are for time-to-event analysis, i.e., OS and PFS:
 
 ```{r}
-adtte <- adtte %>% 
+adtte <- adtte %>%
   dplyr::union_all(adtte %>% mutate(PARAMCD = "OS")) %>%
   dplyr::union_all(adtte %>% mutate(PARAMCD = "PFS", AVAL = AVAL - 3))
-
 ```
 
 ## Step 2: build the metadata
@@ -80,10 +79,10 @@ We use the [metalite](https://merck.github.io/metalite/) R package to generate a
 To begin, we input the `adsl` data as the population data and the `adtte` data as the observation data. 
 ```{r}
 # define metadata
-  meta <- meta_adam(
-    population = adsl,
-    observation = adtte
-  )
+meta <- meta_adam(
+  population = adsl,
+  observation = adtte
+)
 ```
 Next, we define the analysis plan, population, observation, and parameters using the `metalite` R package functions.
 Without loss of generality, our plan is to generate any time-to-event KM plot with combined end point and sub group of :
@@ -92,21 +91,21 @@ Without loss of generality, our plan is to generate any time-to-event KM plot wi
 # define analysis plan
 meta <- meta |>
   define_plan(plan = plan(
-    analysis = "interactive_km_curve", 
+    analysis = "interactive_km_curve",
     population = "apat",
-    observation = "efficacy_population", 
-    parameter = "pfs;os;male;female"))
-
+    observation = "efficacy_population",
+    parameter = "pfs;os;male;female"
+  ))
 ```
 
 Following is the definition of the analysis plan, we further specify the details of analysis with the name of `"interactive_km_curve"` by providing its label for display.
 ```{r}
 meta <- meta |>
   define_analysis(
-      name = "interactive_km_curve",
-      title = "KM curves of PFS",
-      label = "km curve"
-    ) 
+    name = "interactive_km_curve",
+    title = "KM curves of PFS",
+    label = "km curve"
+  )
 ```
 
 We then define the related population in the of `"apat"` and observation in the name of `"apat"` by specifying their grouping variable (`group = ...`), subject ID (`id = ...`), population flag (`subset = ...`) and label (`label = ...`). If users wish to use different population flags, grouping variables, or labels, they can make changes as needed.
@@ -114,18 +113,18 @@ We then define the related population in the of `"apat"` and observation in the 
 ```{r}
 meta <- meta |>
   define_population(
-      name = "apat",
-      group = "TRT01P",
-      subset = quote(EFFFL == "Y"),
-      var = c("USUBJID", "TRT01P", "SEX")
-    ) |>
-    define_observation(
-      name = "efficacy_population",
-      group = "TRT01P",
-      subset = SAFFL == "Y",
-      var = c("USUBJID", "TRT01P", "SEX", "PARAMCD", "AVAL", "CNSR"),
-      label = "Efficacy population"
-    ) 
+    name = "apat",
+    group = "TRT01P",
+    subset = quote(EFFFL == "Y"),
+    var = c("USUBJID", "TRT01P", "SEX")
+  ) |>
+  define_observation(
+    name = "efficacy_population",
+    group = "TRT01P",
+    subset = SAFFL == "Y",
+    var = c("USUBJID", "TRT01P", "SEX", "PARAMCD", "AVAL", "CNSR"),
+    label = "Efficacy population"
+  )
 ```
 
 Next, we specify the details with parameter in the `name = "pfs; os"`, as end point. 
@@ -133,35 +132,35 @@ Next, we specify the details with parameter in the `name = "pfs; os"`, as end po
 ```{r}
 meta <- meta |>
   define_parameter(
-        name = "pfs",
-        subset = PARAMCD == "PFS",
-        label = "PFS"
-      ) |>
-      define_parameter(
-        name = "os",
-        subset = PARAMCD == "OS",
-        label = "OS"
-      )
+    name = "pfs",
+    subset = PARAMCD == "PFS",
+    label = "PFS"
+  ) |>
+  define_parameter(
+    name = "os",
+    subset = PARAMCD == "OS",
+    label = "OS"
+  )
 ```
 
 Similarly, we define gender details in the `name = "Male; Female"`, as sub group. 
 ```{r}
 meta <- meta |>
   define_parameter(
-      name = "male",
-      subset = SEX == "M",
-      label = "Male"
-    ) |>
-    define_parameter(
-      name = "female",
-      subset = SEX == "F",
-      label = "Female"
-    )
+    name = "male",
+    subset = SEX == "M",
+    label = "Male"
+  ) |>
+  define_parameter(
+    name = "female",
+    subset = SEX == "F",
+    label = "Female"
+  )
 ```
 
 Finally, we build the metadata by running the `meta_build()` function.
 ```{r}
-meta <- meta |>  meta_build()
+meta <- meta |> meta_build()
 ```
 
 ## Step 3: Generate the Interactive Kaplan-Meier curves plot 
@@ -169,9 +168,11 @@ meta <- meta |>  meta_build()
 With the `meta` built as described above, users can generate the interactive Kaplan-Meier curves plot seamlessly through a simple `kmcurvely()` function call.
 
 ```{r}
-kmcurvely(meta = meta,
-          population = "apat",
-          observation = "efficacy_population",
-          endpoint = "pfs;os",
-          subgroup = "male;female")
+kmcurvely(
+  meta = meta,
+  population = "apat",
+  observation = "efficacy_population",
+  endpoint = "pfs;os",
+  subgroup = "male;female"
+)
 ```
