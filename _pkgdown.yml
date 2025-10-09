@@ -27,22 +27,11 @@ articles:
 - title: Generate Kaplan-Meier curves plot
   navbar: ~
   contents:
-  - kmcurve-plot-static
   - kmcurvely
-- title: Customize the Interactive Kaplan-Meier curves Plot
-  navbar: ~
-  contents:
-  - customize-listing-columns
-  - customize-digits
-  - customize-color
-  - customize-endpoint
-  - customize-subgroup
-  - customize-diff-label
-  - customize-xlimit
-  - customize-width
 - title: Developer Notes
   contents:
-  - design-pattern
+  - programming_logic
+  - quick_start
 
 reference:
 - title:  Time-to-event analysis
@@ -50,14 +39,15 @@ reference:
   - "meta_tte_example"
   - "kmcurvely_static"
   - "kmcurvely"
-- title: Static plot
-  contents:
-  - "background_panel"
-  - "plot_dot"
-  - "plot_errorbar"
-  - "table_panel"
-  - "theme_panel"
-- title: Example data
+- title: Examples
   contents:
   - "kmcurvely_adsl"
   - "kmcurvely_adtte"
+  - "km_extract"
+  - "kmcurvely_static"
+  - "meta_tte_example"
+  - "meta_tte_example_new"
+  - "check_args"
+  - "prepare_hr_forestly"
+  - "format_hr_forestly"
+  - "hr_forestly"
