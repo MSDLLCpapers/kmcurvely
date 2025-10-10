@@ -32,7 +32,7 @@ Through its interactive features, users can:
 - **Search** for the ENDPOINT or SUBGROUP of interest.
 - **Selection** to view single/multiple ENDPOINT or SUBGROUP of interest.
 
-# Procedure to generate interactive forest plot
+# Procedure to generate interactive Kaplan-Meier plot
 
 ## Step 1: Read the ADaM data
 

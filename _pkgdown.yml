@@ -14,6 +14,8 @@ template:
     navbar-light-active-color: "#fff"
     dropdown-link-hover-color: "#fff"
     dropdown-link-hover-bg: "#00857c"
+  assets:
+    - pkgdown/extra.css
 
 footer:
   structure:
@@ -25,7 +27,6 @@ footer:
 
 articles:
 - title: Generate Kaplan-Meier curves plot
-  navbar: ~
   contents:
   - kmcurvely
 - title: Developer Notes
@@ -51,3 +52,4 @@ reference:
   - "prepare_hr_forestly"
   - "format_hr_forestly"
   - "hr_forestly"
+
