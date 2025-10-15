@@ -2,6 +2,10 @@ pandoc: 3.1.11
 pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
+  kmcurvely: kmcurvely.html
   programming_logic: programming_logic.html
   quick_start: quick_start.html
-last_built: 2025-09-24T01:18Z
+last_built: 2025-10-15T01:41Z
+urls:
+  reference: https://merck.github.io/kmcurvely/reference
+  article: https://merck.github.io/kmcurvely/articles

@@ -1,0 +1,64 @@
+/* navbar background */
+nav.bg-light {
+    background-color: #00857c !important;
+}
+
+/* navbar version number */
+.nav-text.text-muted {
+    color: #d9e7e6 !important;
+}
+
+/* navbar link status */
+nav.bg-light .navbar-nav .nav-item.active .nav-link {
+    color: #212529;
+    background-color: #e9ecef;
+}
+
+nav.bg-light .navbar-nav .nav-item>.nav-link:hover {
+    background: #005c55;
+}
+
+nav.bg-light .navbar-nav .nav-item.active>.nav-link:hover {
+    color: #fff;
+}
+
+/* footer */
+footer {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.sidebar {
+    float: right;
+}
+
+/* hotfix for toc squeezed to bottom issue in vignettes with wide elements */
+@media (min-width: 1320) {
+    .container {
+        width: 1920px !important;
+    }
+}
+
+@media (min-width: 600px) {
+    #toc {
+        position: relative;
+        top: 0;
+    }
+}
+
+
+.plotly-html-widget {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.figure {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+
+.container {
+  width: 1900px !important;
+}
+
