@@ -1,0 +1,178 @@
+---
+title: "Generate Kaplan-Meier curves plot for time-to-event analysis"
+author: "Li Ma"
+output: 
+  rmarkdown::html_document:
+    self_contained: no
+    number_sections: yes
+    code_folding: hide
+  vignette: |
+    %\VignetteIndexEntry{Generate Kaplan-Meier curves plot for time-to-event analysis}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = FALSE,
+  warning = FALSE,
+  eval = TRUE,
+  echo = TRUE
+)
+```
+
+# Introduction
+
+The `kmcurvely` R package creates Kaplan-Meier curves plot for clinical trial analysis and reporting in terms of time-to-event analysis. 
+
+Through its interactive features, users can: 
+
+- **Search** for the ENDPOINT or SUBGROUP of interest.
+- **Selection** to view single/multiple ENDPOINT or SUBGROUP of interest.
+
+# Procedure to generate interactive Kaplan-Meier plot
+
+## Step 1: Read the ADaM data
+
+In the example presented in this vignette, we utilize the ADAM data from the `kmcurvely` R package. We further factorize the actual arm variable, `TRT01P`, to enable the `kmcurvely` R package to identify which arm serves as the reference group.
+
+```{r message=FALSE}
+library(dplyr)
+library(survival)
+library(ggplot2)
+library(plotly)
+library(metalite)
+library(kmcurvely)
+
+# meta <- meta_tte_example()
+adsl <- kmcurvely_adsl
+adsl$TRT01P <- factor(
+  adsl$TRT01P,
+  levels = c("Placebo", "Xanomeline Low Dose", "Xanomeline High Dose"),
+  labels = c("Placebo", "Low Dose", "High Dose")
+)
+
+# read adtte dataset
+adtte <- kmcurvely_adtte
+
+adtte <- adtte %>% dplyr::rename(TRT01P = TRTP)
+adtte$TRT01P <- factor(adtte$TRT01P,
+  levels = c("Placebo", "Xanomeline Low Dose", "Xanomeline High Dose"),
+  labels = c("Placebo", "Low Dose", "High Dose")
+)
+```
+
+Manually add new endpoints that are for time-to-event analysis, i.e., OS and PFS:
+
+```{r}
+adtte <- adtte %>%
+  dplyr::union_all(adtte %>% mutate(PARAMCD = "OS")) %>%
+  dplyr::union_all(adtte %>% mutate(PARAMCD = "PFS", AVAL = AVAL - 3))
+```
+
+## Step 2: build the metadata
+
+We use the [metalite](https://merck.github.io/metalite/) R package to generate a minimal metadata for the generation of the interactive Kaplan-Meier curves plot.
+
+To begin, we input the `adsl` data as the population data and the `adtte` data as the observation data. 
+```{r}
+# define metadata
+meta <- meta_adam(
+  population = adsl,
+  observation = adtte
+)
+```
+Next, we define the analysis plan, population, observation, and parameters using the `metalite` R package functions.
+Without loss of generality, our plan is to generate any time-to-event KM plot with combined end point and sub group of :
+
+```{r}
+# define analysis plan
+meta <- meta |>
+  define_plan(plan = plan(
+    analysis = "interactive_km_curve",
+    population = "apat",
+    observation = "efficacy_population",
+    parameter = "pfs;os;male;female"
+  ))
+```
+
+Following is the definition of the analysis plan, we further specify the details of analysis with the name of `"interactive_km_curve"` by providing its label for display.
+```{r}
+meta <- meta |>
+  define_analysis(
+    name = "interactive_km_curve",
+    title = "KM curves of PFS",
+    label = "km curve"
+  )
+```
+
+We then define the related population in the of `"apat"` and observation in the name of `"apat"` by specifying their grouping variable (`group = ...`), subject ID (`id = ...`), population flag (`subset = ...`) and label (`label = ...`). If users wish to use different population flags, grouping variables, or labels, they can make changes as needed.
+
+```{r}
+meta <- meta |>
+  define_population(
+    name = "apat",
+    group = "TRT01P",
+    subset = quote(EFFFL == "Y"),
+    var = c("USUBJID", "TRT01P", "SEX")
+  ) |>
+  define_observation(
+    name = "efficacy_population",
+    group = "TRT01P",
+    subset = SAFFL == "Y",
+    var = c("USUBJID", "TRT01P", "SEX", "PARAMCD", "AVAL", "CNSR"),
+    label = "Efficacy population"
+  )
+```
+
+Next, we specify the details with parameter in the `name = "pfs; os"`, as end point. 
+
+```{r}
+meta <- meta |>
+  define_parameter(
+    name = "pfs",
+    subset = PARAMCD == "PFS",
+    label = "PFS"
+  ) |>
+  define_parameter(
+    name = "os",
+    subset = PARAMCD == "OS",
+    label = "OS"
+  )
+```
+
+Similarly, we define gender details in the `name = "Male; Female"`, as sub group. 
+```{r}
+meta <- meta |>
+  define_parameter(
+    name = "male",
+    subset = SEX == "M",
+    label = "Male"
+  ) |>
+  define_parameter(
+    name = "female",
+    subset = SEX == "F",
+    label = "Female"
+  )
+```
+
+Finally, we build the metadata by running the `meta_build()` function.
+```{r}
+meta <- meta |> meta_build()
+```
+
+## Step 3: Generate the Interactive Kaplan-Meier curves plot 
+
+With the `meta` built as described above, users can generate the interactive Kaplan-Meier curves plot seamlessly through a simple `kmcurvely()` function call.
+
+```{r}
+kmcurvely(
+  meta = meta,
+  population = "apat",
+  observation = "efficacy_population",
+  endpoint = "pfs;os",
+  subgroup = "male;female"
+)
+```
