@@ -93,27 +93,28 @@
 #'   p
 #' ))
 sparkline_point_js <- function(
-    tbl,
-    x,
-    type = c("cell", "footer", "header"),
-    x_lower = NULL,
-    x_upper = x_lower,
-    xlim = NULL,
-    xlab = "",
-    y = seq_along(x),
-    vline = NULL,
-    text = NULL,
-    height = 30,
-    width = 150,
-    color = "gold",
-    color_errorbar = color,
-    color_vline = "#00000050",
-    legend = FALSE,
-    legend_label = NULL,
-    legend_title = "",
-    legend_position = 0,
-    legend_type = c("point", "line", "point+line"),
-    margin = rep(0, 5)) {
+  tbl,
+  x,
+  type = c("cell", "footer", "header"),
+  x_lower = NULL,
+  x_upper = x_lower,
+  xlim = NULL,
+  xlab = "",
+  y = seq_along(x),
+  vline = NULL,
+  text = NULL,
+  height = 30,
+  width = 150,
+  color = "gold",
+  color_errorbar = color,
+  color_vline = "#00000050",
+  legend = FALSE,
+  legend_label = NULL,
+  legend_title = "",
+  legend_position = 0,
+  legend_type = c("point", "line", "point+line"),
+  margin = rep(0, 5)
+) {
   # Input Checking
   stopifnot(x %in% names(tbl))
 
