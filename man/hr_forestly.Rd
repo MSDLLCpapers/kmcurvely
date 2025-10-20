@@ -44,7 +44,8 @@ prepare_hr_forestly(
   population = "apat",
   observation = "efficacy_population",
   endpoint = "pfs;os",
-  subgroup = "male;female",
+  subgroup = "gender",
+  km_curves = "male;female",
   arm_levels = c("Placebo", "Xanomeline Low Dose", "Xanomeline High Dose")
 ) |>
   format_hr_forestly() |>

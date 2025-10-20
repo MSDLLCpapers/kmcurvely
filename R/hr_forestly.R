@@ -38,7 +38,8 @@
 #'   population = "apat",
 #'   observation = "efficacy_population",
 #'   endpoint = "pfs;os",
-#'   subgroup = "male;female",
+#'   subgroup = "gender",
+#'   km_curves = "male;female",
 #'   arm_levels = c("Placebo", "Xanomeline Low Dose", "Xanomeline High Dose")
 #' ) |>
 #'   format_hr_forestly() |>
@@ -78,6 +79,7 @@ hr_forestly <- function(outdata,
       data = tbl,
       columns = outdata$reactable_columns,
       columnGroups = outdata$reactable_columns_group,
+      groupBy = "subgroup_section",
       width = width,
       pageSizeOptions = max_page,
       details = function(index) {
