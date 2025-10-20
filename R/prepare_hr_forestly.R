@@ -22,10 +22,11 @@
 #' @param population A string indicating the population to use (e.g., "apat").
 #' @param observation A string indicating the observation population (e.g., "efficacy_population").
 #' @param endpoint A semicolon-separated string of endpoints to be analyzed (e.g., "pfs;os").
-#' @param subgroup A semicolon-separated string of subgroups to filter by (e.g., "male;female").
-#'    Use "all" to include the result for overall population (e.g., "all;male;female").
+#' @param subgroup A semicolon-separated string of subgroups to filter by (e.g., "age;gender").
+#'    The parameters should be defined at variable levels.
+#'    Use "all" to include the result for overall population (e.g., "all;age;gender").
 #' @param km_curves A semicolon-separated string of subgroups for which KM curves should be plotted.
-#'    Defaults to the same as `subgroup`.
+#'    The parameters should be defined at value levels for subgroups.
 #' @param arm_levels A vector of character specifying the levels of arms, starting with the reference arm.
 #'
 #' @return An metadata with HR per subgroup along with its KM plotting data
@@ -38,7 +39,7 @@
 #'   population = "apat",
 #'   observation = "efficacy_population",
 #'   endpoint = "pfs;os",
-#'   subgroup = "age<65;age65-80;age>80;male;female",
+#'   subgroup = "age;gender",
 #'   km_curves = "female;age65-80",
 #'   arm_levels = c("Placebo", "Xanomeline Low Dose", "Xanomeline High Dose")
 #' )

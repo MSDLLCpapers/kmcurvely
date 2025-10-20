@@ -23,11 +23,12 @@ prepare_hr_forestly(
 
 \item{endpoint}{A semicolon-separated string of endpoints to be analyzed (e.g., "pfs;os").}
 
-\item{subgroup}{A semicolon-separated string of subgroups to filter by (e.g., "male;female").
-Use "all" to include the result for overall population (e.g., "all;male;female").}
+\item{subgroup}{A semicolon-separated string of subgroups to filter by (e.g., "age;gender").
+The parameters should be defined at variable levels.
+Use "all" to include the result for overall population (e.g., "all;age;gender").}
 
 \item{km_curves}{A semicolon-separated string of subgroups for which KM curves should be plotted.
-Defaults to the same as \code{subgroup}.}
+The parameters should be defined at value levels for subgroups.}
 
 \item{arm_levels}{A vector of character specifying the levels of arms, starting with the reference arm.}
 }
@@ -43,7 +44,7 @@ prepare_hr_forestly(
   population = "apat",
   observation = "efficacy_population",
   endpoint = "pfs;os",
-  subgroup = "age<65;age65-80;age>80;male;female",
+  subgroup = "age;gender",
   km_curves = "female;age65-80",
   arm_levels = c("Placebo", "Xanomeline Low Dose", "Xanomeline High Dose")
 )
