@@ -78,6 +78,7 @@ hr_forestly <- function(outdata,
       data = tbl,
       columns = outdata$reactable_columns,
       columnGroups = outdata$reactable_columns_group,
+      groupBy = "subgroup_section",
       width = width,
       pageSizeOptions = max_page,
       details = function(index) {

@@ -47,7 +47,7 @@ prepare_hr_forestly <- function(meta = NULL,
                                 observation = NULL,
                                 endpoint = NULL,
                                 subgroup = NULL,
-                                km_curves = subgroup,
+                                km_curves = NULL,
                                 arm_levels = NULL) {
   # obtain population/observation variables
   pop_var <- metalite::collect_adam_mapping(meta, population)$var
@@ -81,7 +81,7 @@ prepare_hr_forestly <- function(meta = NULL,
     dplyr::mutate(
       event = 1 - CNSR
     ) |>
-    dplyr::select(-ends_with(".pop")) |>
+    dplyr::select(-dplyr::ends_with(".pop")) |>
     dplyr::rename(dplyr::any_of(rename_lookup)) |>
     dplyr::filter(treatment %in% arm_levels)
 
@@ -92,7 +92,9 @@ prepare_hr_forestly <- function(meta = NULL,
   # ----------------------------------------------- #
   endpoint <- unlist(strsplit(endpoint, ";"))
   subgroup <- unlist(strsplit(subgroup, ";"))
-  km_curves <- unlist(strsplit(km_curves, ";"))
+  if (!is.null(km_curves)) {
+    km_curves <- unlist(strsplit(km_curves, ";"))
+  }
   n_endpoint <- length(endpoint)
   n_subgroup <- length(subgroup)
   n_group <- length(unique(surv_data$treatment))
@@ -101,98 +103,120 @@ prepare_hr_forestly <- function(meta = NULL,
   }, USE.NAMES = FALSE)
 
   # tables to store sample size, events, HR and KM plotting data
-  n_tbl <- NULL
-  event_tbl <- NULL
-  hr_est_tbl <- NULL
-  hr_ci_lower_tbl <- NULL
-  hr_ci_upper_tbl <- NULL
+  res <- NULL
+  res_name <- c("n_tbl", "event_tbl", "hr_est_tbl", "hr_ci_lower_tbl", "hr_ci_upper_tbl")
   km_tbl <- NULL
-  kmcurves <- NULL
 
   # loop for all possible endpoints
   for (endpt in endpoint) {
-    # loop for all possible subgroups
-    for (subgrp in subgroup) {
-      endpt_filter <- metalite::collect_adam_mapping(meta, endpt)$subset
-      endpt_label <- metalite::collect_adam_mapping(meta, endpt)$label
+    endpt_filter <- metalite::collect_adam_mapping(meta, endpt)$subset
+    endpt_label <- metalite::collect_adam_mapping(meta, endpt)$label
 
-      # filter the TTE data given the endpoint, arm comparison and subgroup
-      if (toupper(subgrp) == "ALL") {
-        data_sub <- surv_data |> filter(!!endpt_filter)
-        subgroup_label <- "All"
+    res_new <- lapply(subgroup, function(par_subgrp) {
+      if (toupper(par_subgrp) == "ALL") {
+        subgroup_var <- "ALL"
+        subgroup_section <- "All"
+        subgroup_val <- "All"
       } else {
-        subgrp_filter <- metalite::collect_adam_mapping(meta, subgrp)$subset
-        subgroup_label <- metalite::collect_adam_mapping(meta, subgrp)$label
-        data_sub <- surv_data |> dplyr::filter(!!endpt_filter & !!subgrp_filter)
+        subgroup_var <- metalite::collect_adam_mapping(meta, par_subgrp)$var
+        subgroup_section <- metalite::collect_adam_mapping(meta, par_subgrp)$label
+        subgroup_val <- unique(surv_data[[subgroup_var]])
       }
 
-      # run cox model and get HR estimate of the given endpoint, given arm comparison and given subgroup
-      cox_model <- lapply(2:n_group, function(x) {
-        data_sub_trt <- data_sub |> dplyr::filter(treatment %in% arm_levels[c(1, x)])
-        # set reference arms
-        data_sub_trt$treatment <- factor(data_sub_trt$treatment, levels = arm_levels[c(1, x)])
-        survival::coxph(survival::Surv(time, event) ~ treatment, data = data_sub_trt)
-      })
+      lapply(subgroup_val, function(subgrp) {
+        # filter the TTE data given the endpoint, arm comparison and subgroup
+        if (toupper(subgrp) == "ALL") {
+          data_sub <- surv_data |> filter(!!endpt_filter)
+        } else {
+          subgrp_filter <- paste0(subgroup_var, " == '", subgrp, "'")
+          data_sub <- surv_data |> dplyr::filter(!!endpt_filter & eval(parse(text = subgrp_filter)))
+        }
+        subgroup_label <- subgrp
 
-      #  get the sample size
-      n_tbl_new <- lapply(cox_model, function(x) {
-        cox_summary <- summary(x)
-        cox_summary$n
-      })
-      n_tbl_new <- do.call("cbind", n_tbl_new) |> data.frame(endpt_label, subgroup_label)
-      names(n_tbl_new) <- c(paste0("n_", 2:n_group), "endpoint", "subgroup")
-      n_tbl <- rbind(n_tbl, n_tbl_new)
+        # run cox model and get HR estimate of the given endpoint, given arm comparison and given subgroup
+        cox_model <- lapply(2:n_group, function(x) {
+          data_sub_trt <- data_sub |> dplyr::filter(treatment %in% arm_levels[c(1, x)])
+          # set reference arms
+          data_sub_trt$treatment <- factor(data_sub_trt$treatment, levels = arm_levels[c(1, x)])
+          survival::coxph(survival::Surv(time, event) ~ treatment, data = data_sub_trt)
+        })
 
-      #  get the events
-      event_tbl_new <- lapply(cox_model, function(x) {
-        cox_summary <- summary(x)
-        cox_summary$nevent
-      })
-      event_tbl_new <- do.call("cbind", event_tbl_new) |> data.frame(endpt_label, subgroup_label)
-      names(event_tbl_new) <- c(paste0("event_", 2:n_group), "endpoint", "subgroup")
-      event_tbl <- rbind(event_tbl, event_tbl_new)
+        cox_summary_list <- lapply(cox_model, summary)
 
-      #  get the HR point estimate
-      hr_est_tbl_new <- lapply(cox_model, function(x) {
-        cox_summary <- summary(x)
-        cox_summary$coef[2]
-      })
-      hr_est_tbl_new <- do.call("cbind", hr_est_tbl_new) |> data.frame(endpt_label, subgroup_label)
-      names(hr_est_tbl_new) <- c(paste0("hr_est_", 2:n_group), "endpoint", "subgroup")
-      hr_est_tbl <- rbind(hr_est_tbl, hr_est_tbl_new)
+        #  get the sample size
+        n_tbl_new <- lapply(cox_summary_list, function(x) x$n)
+        n_tbl_new <- do.call("cbind", n_tbl_new) |> data.frame(endpt_label, subgroup_label, subgroup_section)
+        names(n_tbl_new) <- c(paste0("n_", 2:n_group), "endpoint", "subgroup", "subgroup_section")
 
-      #  get the HR lower CI
-      hr_ci_lower_tbl_new <- lapply(cox_model, function(x) {
-        cox_summary <- summary(x)
-        cox_summary$conf.int[, "lower .95"]
-      })
-      hr_ci_lower_tbl_new <- do.call("cbind", hr_ci_lower_tbl_new) |> data.frame(endpt_label, subgroup_label)
-      names(hr_ci_lower_tbl_new) <- c(paste0("hr_ci_lower_", 2:n_group), "endpoint", "subgroup")
-      hr_ci_lower_tbl <- rbind(hr_ci_lower_tbl, hr_ci_lower_tbl_new)
+        #  get the events
+        event_tbl_new <- lapply(cox_summary_list, function(x) x$nevent)
+        event_tbl_new <- do.call("cbind", event_tbl_new) |> data.frame(endpt_label, subgroup_label, subgroup_section)
+        names(event_tbl_new) <- c(paste0("event_", 2:n_group), "endpoint", "subgroup", "subgroup_section")
 
-      #  get the HR upper CI
-      hr_ci_upper_tbl_new <- lapply(cox_model, function(x) {
-        cox_summary <- summary(x)
-        cox_summary$conf.int[, "upper .95"]
-      })
-      hr_ci_upper_tbl_new <- do.call("cbind", hr_ci_upper_tbl_new) |> data.frame(endpt_label, subgroup_label)
-      names(hr_ci_upper_tbl_new) <- c(paste0("hr_ci_upper_", 2:n_group), "endpoint", "subgroup")
-      hr_ci_upper_tbl <- rbind(hr_ci_upper_tbl, hr_ci_upper_tbl_new)
+        #  get the HR point estimate
+        hr_est_tbl_new <- lapply(cox_summary_list, function(x) x$coef[2])
+        hr_est_tbl_new <- do.call("cbind", hr_est_tbl_new) |> data.frame(endpt_label, subgroup_label, subgroup_section)
+        names(hr_est_tbl_new) <- c(paste0("hr_est_", 2:n_group), "endpoint", "subgroup", "subgroup_section")
 
-      # get the data for KM plotting
-      if (toupper(subgrp) %in% toupper(km_curves)) {
-        kmcurves <- c(kmcurves, subgroup_label)
-        km_tbl_new <- survival::survfit(survival::Surv(time, event) ~ treatment, data = data_sub, conf.type = "log-log") |>
+        #  get the HR lower CI
+        hr_ci_lower_tbl_new <- lapply(cox_summary_list, function(x) x$conf.int[, "lower .95"])
+        hr_ci_lower_tbl_new <- do.call("cbind", hr_ci_lower_tbl_new) |> data.frame(endpt_label, subgroup_label, subgroup_section)
+        names(hr_ci_lower_tbl_new) <- c(paste0("hr_ci_lower_", 2:n_group), "endpoint", "subgroup", "subgroup_section")
+
+        #  get the HR upper CI
+        hr_ci_upper_tbl_new <- lapply(cox_summary_list, function(x) x$conf.int[, "upper .95"])
+        hr_ci_upper_tbl_new <- do.call("cbind", hr_ci_upper_tbl_new) |> data.frame(endpt_label, subgroup_label, subgroup_section)
+        names(hr_ci_upper_tbl_new) <- c(paste0("hr_ci_upper_", 2:n_group), "endpoint", "subgroup", "subgroup_section")
+
+        list(
+          n_tbl = n_tbl_new,
+          event_tbl = event_tbl_new,
+          hr_est_tbl = hr_est_tbl_new,
+          hr_ci_lower_tbl = hr_ci_lower_tbl_new,
+          hr_ci_upper_tbl = hr_ci_upper_tbl_new
+        )
+      })
+    })
+    res_new <- lapply(c("n_tbl", "event_tbl", "hr_est_tbl", "hr_ci_lower_tbl", "hr_ci_upper_tbl"), function(name) {
+      do.call(rbind, lapply(res_new, function(res1) {
+        do.call(rbind, lapply(res1, function(x) x[[name]]))
+      }))
+    })
+    names(res_new) <- res_name
+    if (!is.null(res)) {
+      res <- lapply(res_name, function(x) {
+        rbind(res[[x]], res_new[[x]])
+      })
+    } else {
+      res <- res_new
+    }
+    names(res) <- res_name
+
+    # get the data for KM plotting
+    if (!is.null(km_curves)) {
+      km_tbl_new <- lapply(km_curves, function(km_curve) {
+        if (toupper(km_curve) == "ALL") {
+          data_sub <- surv_data |> dplyr::filter(!!endpt_filter)
+          km_curve_val <- "All"
+        } else {
+          km_curve_var <- metalite::collect_adam_mapping(meta, km_curve)$var
+          km_curve_filter <- metalite::collect_adam_mapping(meta, km_curve)$subset
+          data_sub <- surv_data |> dplyr::filter(!!endpt_filter & !!km_curve_filter)
+          km_curve_val <- unique(data_sub[[km_curve_var]])
+        }
+        survival::survfit(survival::Surv(time, event) ~ treatment, data = data_sub, conf.type = "log-log") |>
           km_extract() |>
           dplyr::mutate(
             endpoint = endpt_label,
-            subgroup = subgroup_label,
+            subgroup = km_curve_val,
             text = paste0(endpoint, ": ", surv, "\n", "Number of participants at risk: ", n.risk)
           )
-        km_tbl <- rbind(km_tbl, km_tbl_new)
-      }
+      })
+      km_tbl_new <- do.call(rbind, km_tbl_new)
+      km_tbl <- rbind(km_tbl, km_tbl_new)
     }
   }
+  kmcurves <- as.character(unique(km_tbl$subgroup))
 
   # prepare outdata
   outdata <- metalite::outdata(
@@ -207,11 +231,11 @@ prepare_hr_forestly <- function(meta = NULL,
     group = arm_levels,
     reference_group = 1,
     arm_comparison = arm_comparison,
-    n = n_tbl,
-    event = event_tbl,
-    hr_est = hr_est_tbl,
-    hr_ci_lower = hr_ci_lower_tbl,
-    hr_ci_upper = hr_ci_upper_tbl,
+    n = res$n_tbl,
+    event = res$event_tbl,
+    hr_est = res$hr_est_tbl,
+    hr_ci_lower = res$hr_ci_lower_tbl,
+    hr_ci_upper = res$hr_ci_upper_tbl,
     km_data = km_tbl
   )
 

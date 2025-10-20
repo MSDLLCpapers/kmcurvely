@@ -39,6 +39,7 @@ meta_tte_example_new <- function() {
   # --------------------------------
   # read adsl dataset
   adsl <- kmcurvely_adsl
+  adsl$SEX <- factor(adsl$SEX, levels = c("M", "F"), labels = c("Male", "Female"))
 
   # read adtte dataset
   adtte <- kmcurvely_adtte
@@ -100,7 +101,7 @@ meta_tte_example_new <- function() {
   ) |>
     metalite::add_plan(
       analysis = "hr_forestly", population = "apat",
-      observation = "efficacy_population", parameter = "pfs;os;male;female"
+      observation = "efficacy_population", parameter = "pfs;os;gender;age;male;female;age<65;age65-80;age>80"
     )
 
   # define metadata
@@ -133,27 +134,42 @@ meta_tte_example_new <- function() {
       label = "Overall Survival"
     ) |>
     metalite::define_parameter(
+      name = "gender",
+      var = "SEX",
+      label = "Gender"
+    ) |>
+    metalite::define_parameter(
       name = "male",
-      subset = SEX == "M",
+      var = "SEX",
+      subset = SEX == "Male",
       label = "Male"
     ) |>
     metalite::define_parameter(
       name = "female",
-      subset = SEX == "F",
+      var = "SEX",
+      subset = SEX == "Female",
       label = "Female"
     ) |>
     metalite::define_parameter(
+      name = "age",
+      var = "AGEGR1",
+      label = "Age (years)"
+    ) |>
+    metalite::define_parameter(
       name = "age<65",
+      var = "AGEGR1",
       subset = AGEGR1 == "<65",
       label = "Age < 65"
     ) |>
     metalite::define_parameter(
       name = "age65-80",
+      var = "AGEGR1",
       subset = AGEGR1 == "65-80",
       label = "Age 65-80"
     ) |>
     metalite::define_parameter(
       name = "age>80",
+      var = "AGEGR1",
       subset = AGEGR1 == ">80",
       label = "Age > 80"
     ) |>

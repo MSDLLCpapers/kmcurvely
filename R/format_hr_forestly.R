@@ -112,7 +112,7 @@ format_hr_forestly <- function(outdata,
   col_names <- sapply(2:n_group, function(x) {
     names(tbl)[grep(paste0(".+_", x), names(tbl))]
   }, simplify = FALSE) |> unlist()
-  tbl <- tbl[c("endpoint", "subgroup", col_names, "hr_fig")]
+  tbl <- tbl[c("endpoint", "subgroup_section", "subgroup", col_names, "hr_fig")]
   rownames(tbl) <- NULL
 
   # Function to create hazard ratio figure
@@ -184,8 +184,13 @@ format_hr_forestly <- function(outdata,
 
   # Format variables for group
   col_var <- list(
-    subgroup = reactable::colDef(
+    subgroup_section = reactable::colDef(
       header = "Subgroup",
+      minWidth = width_subgroup,
+      align = "right"
+    ),
+    subgroup = reactable::colDef(
+      header = "",
       minWidth = width_subgroup,
       align = "right"
     ),

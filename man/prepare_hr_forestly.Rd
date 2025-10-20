@@ -10,7 +10,7 @@ prepare_hr_forestly(
   observation = NULL,
   endpoint = NULL,
   subgroup = NULL,
-  km_curves = subgroup,
+  km_curves = NULL,
   arm_levels = NULL
 )
 }
