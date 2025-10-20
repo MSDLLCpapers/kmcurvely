@@ -46,7 +46,7 @@
 <span>  observation <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  endpoint <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  subgroup <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  km_curves <span class="op">=</span> <span class="va">subgroup</span>,</span>
+<span>  km_curves <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  arm_levels <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -72,13 +72,14 @@
 
 
 <dt id="arg-subgroup">subgroup<a class="anchor" aria-label="anchor" href="#arg-subgroup"></a></dt>
-<dd><p>A semicolon-separated string of subgroups to filter by (e.g., "male;female").
-Use "all" to include the result for overall population (e.g., "all;male;female").</p></dd>
+<dd><p>A semicolon-separated string of subgroups to filter by (e.g., "age;gender").
+The parameters should be defined at variable levels.
+Use "all" to include the result for overall population (e.g., "all;age;gender").</p></dd>
 
 
 <dt id="arg-km-curves">km_curves<a class="anchor" aria-label="anchor" href="#arg-km-curves"></a></dt>
 <dd><p>A semicolon-separated string of subgroups for which KM curves should be plotted.
-Defaults to the same as <code>subgroup</code>.</p></dd>
+The parameters should be defined at value levels for subgroups.</p></dd>
 
 
 <dt id="arg-arm-levels">arm_levels<a class="anchor" aria-label="anchor" href="#arg-arm-levels"></a></dt>
@@ -97,30 +98,27 @@ Defaults to the same as <code>subgroup</code>.</p></dd>
 <span class="r-in"><span>  population <span class="op">=</span> <span class="st">"apat"</span>,</span></span>
 <span class="r-in"><span>  observation <span class="op">=</span> <span class="st">"efficacy_population"</span>,</span></span>
 <span class="r-in"><span>  endpoint <span class="op">=</span> <span class="st">"pfs;os"</span>,</span></span>
-<span class="r-in"><span>  subgroup <span class="op">=</span> <span class="st">"age&lt;65;age65-80;age&gt;80;male;female"</span>,</span></span>
+<span class="r-in"><span>  subgroup <span class="op">=</span> <span class="st">"age;gender"</span>,</span></span>
 <span class="r-in"><span>  km_curves <span class="op">=</span> <span class="st">"female;age65-80"</span>,</span></span>
 <span class="r-in"><span>  arm_levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Placebo"</span>, <span class="st">"Xanomeline Low Dose"</span>, <span class="st">"Xanomeline High Dose"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>age&lt;65 is not in .$plan</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>age65-80 is not in .$plan</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>age&gt;80 is not in .$plan</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> List of 17</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ meta           :List of 7</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ population     : chr "apat"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ observation    : chr "efficacy_population"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ parameter      : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ n              :'data.frame':	10 obs. of  4 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ n              :'data.frame':	10 obs. of  5 variables:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ order          : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ group          : chr [1:3] "Placebo" "Xanomeline Low Dose" "Xanomeline High Dose"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ reference_group: num 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ endpoint       : chr [1:2] "pfs" "os"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ subgroup       : chr [1:5] "age&lt;65" "age65-80" "age&gt;80" "male" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ kmcurves       : chr [1:4] "Age 65-80" "Female" "Age 65-80" "Female"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ subgroup       : chr [1:2] "age" "gender"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ kmcurves       : chr [1:2] "Female" "65-80"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ arm_comparison : chr [1:2] "Xanomeline Low Dose vs. Placebo" "Xanomeline High Dose vs. Placebo"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ event          :'data.frame':	10 obs. of  4 variables:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ hr_est         :'data.frame':	10 obs. of  4 variables:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ hr_ci_lower    :'data.frame':	10 obs. of  4 variables:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ hr_ci_upper    :'data.frame':	10 obs. of  4 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ event          :'data.frame':	10 obs. of  5 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ hr_est         :'data.frame':	10 obs. of  5 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ hr_ci_lower    :'data.frame':	10 obs. of  5 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ hr_ci_upper    :'data.frame':	10 obs. of  5 variables:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ km_data        :'data.frame':	1590 obs. of  12 variables:</span>
 </code></pre></div>
     </div>
