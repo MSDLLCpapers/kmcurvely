@@ -11,6 +11,7 @@ prepare_hr_forestly(
   endpoint = NULL,
   subgroup = NULL,
   km_curves = NULL,
+  digits_km_curves = 2,
   arm_levels = NULL
 )
 }
@@ -29,6 +30,9 @@ Use "all" to include the result for overall population (e.g., "all;age;gender").
 
 \item{km_curves}{A semicolon-separated string of subgroups for which KM curves should be plotted.
 The parameters should be defined at value levels for subgroups.}
+
+\item{digits_km_curves}{A numeric value specifying the number of digits
+for the survival probability in KM curves.}
 
 \item{arm_levels}{A vector of character specifying the levels of arms, starting with the reference arm.}
 }

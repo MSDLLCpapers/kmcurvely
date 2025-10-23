@@ -9,11 +9,11 @@ format_hr_forestly(
   display = c("n", "event", "fig_hr"),
   digits = 2,
   width_subgroup = 50,
-  width_fig = 320,
+  width_fig = 360,
   width_n = 40,
   width_event = 40,
   width_hr = 40,
-  footer_space = 90,
+  footer_space = 150,
   hr_range = NULL,
   color = NULL,
   hr_label = "Treatment <- Favor -> Placebo"
