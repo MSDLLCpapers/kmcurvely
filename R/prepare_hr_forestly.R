@@ -27,6 +27,8 @@
 #'    Use "all" to include the result for overall population (e.g., "all;age;gender").
 #' @param km_curves A semicolon-separated string of subgroups for which KM curves should be plotted.
 #'    The parameters should be defined at value levels for subgroups.
+#' @param digits_km_curves A numeric value specifying the number of digits
+#'    for the survival probability in KM curves.
 #' @param arm_levels A vector of character specifying the levels of arms, starting with the reference arm.
 #'
 #' @return An metadata with HR per subgroup along with its KM plotting data
@@ -49,6 +51,7 @@ prepare_hr_forestly <- function(meta = NULL,
                                 endpoint = NULL,
                                 subgroup = NULL,
                                 km_curves = NULL,
+                                digits_km_curves = 2,
                                 arm_levels = NULL) {
   # obtain population/observation variables
   pop_var <- metalite::collect_adam_mapping(meta, population)$var
@@ -208,6 +211,7 @@ prepare_hr_forestly <- function(meta = NULL,
         survival::survfit(survival::Surv(time, event) ~ treatment, data = data_sub, conf.type = "log-log") |>
           km_extract() |>
           dplyr::mutate(
+            surv = round(surv, digits_km_curves),
             endpoint = endpt_label,
             subgroup = km_curve_val,
             text = paste0(endpoint, ": ", surv, "\n", "Number of participants at risk: ", n.risk)
