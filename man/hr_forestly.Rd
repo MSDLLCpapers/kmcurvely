@@ -9,7 +9,7 @@ hr_forestly(
   time_unit = c("days", "weeks", "months", "years"),
   y_label_kmplot = "Survival Probability",
   width = 1000,
-  height_kmoplot = 400,
+  height_kmplot = 400,
   height_at_risk = 200,
   max_page = NULL
 )
@@ -25,7 +25,7 @@ Default is "Survival Probability".}
 
 \item{width}{A numeric value of width of the entire plot in pixels. Default is 1000.}
 
-\item{height_kmoplot}{A numeric value of height of the KM plot in pixels. Default is 400.}
+\item{height_kmplot}{A numeric value of height of the KM plot in pixels. Default is 400.}
 
 \item{height_at_risk}{A numeric value of height of the at-risk table in pixels.
 Default is 200.}

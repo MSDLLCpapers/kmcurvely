@@ -24,7 +24,7 @@
 #' @param y_label_kmplot A string specifying the y-axis label of the KM plot.
 #'    Default is "Survival Probability".
 #' @param width A numeric value of width of the entire plot in pixels. Default is 1000.
-#' @param height_kmoplot A numeric value of height of the KM plot in pixels. Default is 400.
+#' @param height_kmplot A numeric value of height of the KM plot in pixels. Default is 400.
 #' @param height_at_risk A numeric value of height of the at-risk table in pixels.
 #'    Default is 200.
 #' @param max_page A numeric value of maximum number of subgroups to display per page.
@@ -48,7 +48,7 @@ hr_forestly <- function(outdata,
                         time_unit = c("days", "weeks", "months", "years"),
                         y_label_kmplot = "Survival Probability",
                         width = 1000,
-                        height_kmoplot = 400,
+                        height_kmplot = 400,
                         height_at_risk = 200,
                         max_page = NULL) {
   time_unit <- match.arg(time_unit, choices = time_unit)
@@ -166,7 +166,7 @@ hr_forestly <- function(outdata,
 
           htmltools::div(
             htmltools::tagList(
-              ggplotly(km_plot, tooltip = c("text"), dynamicTicks = FALSE, height = height_kmoplot) %>%
+              ggplotly(km_plot, tooltip = c("text"), dynamicTicks = FALSE, height = height_kmplot) %>%
                 highlight(on = "plotly_click", off = "plotly_doubleclick") %>%
                 add_trace(
                   data = cnr_details,
