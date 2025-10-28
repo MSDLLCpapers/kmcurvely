@@ -13,7 +13,7 @@ format_hr_forestly(
   width_n = 40,
   width_event = 40,
   width_hr = 40,
-  digits_km_curves = 2,
+  digits_surv = 2,
   footer_space = 150,
   hr_range = NULL,
   color = NULL,
@@ -49,7 +49,7 @@ the "event" column in pixels.}
 
 \item{width_hr}{A numeric value specifying the width of the hazard ratio column in pixels.}
 
-\item{digits_km_curves}{A numeric value specifying the number of digits to display
+\item{digits_surv}{A numeric value specifying the number of digits to display
 for the survival probability in KM curves.}
 
 \item{footer_space}{A numeric value specifying the space for the footer in pixels.}

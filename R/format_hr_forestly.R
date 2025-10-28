@@ -36,7 +36,7 @@
 #' @param width_event A numeric value specifying the width of
 #'    the "event" column in pixels.
 #' @param width_hr A numeric value specifying the width of the hazard ratio column in pixels.
-#' @param digits_km_curves A numeric value specifying the number of digits to display
+#' @param digits_surv A numeric value specifying the number of digits to display
 #'    for the survival probability in KM curves.
 #' @param footer_space A numeric value specifying the space for the footer in pixels.
 #' @param hr_range A numeric vector of lower and upper limit of x-axis
@@ -68,7 +68,7 @@ format_hr_forestly <- function(outdata,
                                width_n = 40,
                                width_event = 40,
                                width_hr = 40,
-                               digits_km_curves = 2,
+                               digits_surv = 2,
                                footer_space = 150,
                                hr_range = NULL,
                                color = NULL,
@@ -290,8 +290,8 @@ format_hr_forestly <- function(outdata,
   # Update km_data to round
   km_data <- outdata$km_data |>
     dplyr::mutate(
-      surv = round(surv, digits_km_curves),
-      text = paste0(endpoint, ": ", formatC(surv, format = "f", digits = digits_km_curves), "\n", "Number of participants at risk: ", n.risk)
+      surv = round(surv, digits_surv),
+      text = paste0(endpoint, ": ", formatC(surv, format = "f", digits = digits_surv), "\n", "Number of participants at risk: ", n.risk)
     )
 
   # Create outdata
