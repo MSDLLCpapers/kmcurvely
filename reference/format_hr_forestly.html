@@ -43,13 +43,14 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">format_hr_forestly</span><span class="op">(</span></span>
 <span>  <span class="va">outdata</span>,</span>
 <span>  display <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"n"</span>, <span class="st">"event"</span>, <span class="st">"fig_hr"</span><span class="op">)</span>,</span>
-<span>  digits <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  digits_hr <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  width_subgroup <span class="op">=</span> <span class="fl">50</span>,</span>
-<span>  width_fig <span class="op">=</span> <span class="fl">320</span>,</span>
+<span>  width_fig <span class="op">=</span> <span class="fl">360</span>,</span>
 <span>  width_n <span class="op">=</span> <span class="fl">40</span>,</span>
 <span>  width_event <span class="op">=</span> <span class="fl">40</span>,</span>
 <span>  width_hr <span class="op">=</span> <span class="fl">40</span>,</span>
-<span>  footer_space <span class="op">=</span> <span class="fl">90</span>,</span>
+<span>  digits_surv <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  footer_space <span class="op">=</span> <span class="fl">150</span>,</span>
 <span>  hr_range <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  color <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  hr_label <span class="op">=</span> <span class="st">"Treatment &lt;- Favor -&gt; Placebo"</span></span>
@@ -74,7 +75,7 @@ Default is c("n", "event", "fig_hr").</p><ul><li><p><code>n</code>: Number of pa
 </ul></dd>
 
 
-<dt id="arg-digits">digits<a class="anchor" aria-label="anchor" href="#arg-digits"></a></dt>
+<dt id="arg-digits-hr">digits_hr<a class="anchor" aria-label="anchor" href="#arg-digits-hr"></a></dt>
 <dd><p>A numeric value specifying the number of digits to
 display for hazard ratios and confidence intervals. Default is 2.</p></dd>
 
@@ -100,6 +101,11 @@ the "event" column in pixels.</p></dd>
 
 <dt id="arg-width-hr">width_hr<a class="anchor" aria-label="anchor" href="#arg-width-hr"></a></dt>
 <dd><p>A numeric value specifying the width of the hazard ratio column in pixels.</p></dd>
+
+
+<dt id="arg-digits-surv">digits_surv<a class="anchor" aria-label="anchor" href="#arg-digits-surv"></a></dt>
+<dd><p>A numeric value specifying the number of digits to display
+for the survival probability in KM curves.</p></dd>
 
 
 <dt id="arg-footer-space">footer_space<a class="anchor" aria-label="anchor" href="#arg-footer-space"></a></dt>
