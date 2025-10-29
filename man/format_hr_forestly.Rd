@@ -7,13 +7,14 @@
 format_hr_forestly(
   outdata,
   display = c("n", "event", "fig_hr"),
-  digits = 2,
+  digits_hr = 2,
   width_subgroup = 50,
-  width_fig = 320,
+  width_fig = 360,
   width_n = 40,
   width_event = 40,
   width_hr = 40,
-  footer_space = 90,
+  digits_surv = 2,
+  footer_space = 150,
   hr_range = NULL,
   color = NULL,
   hr_label = "Treatment <- Favor -> Placebo"
@@ -32,7 +33,7 @@ Default is c("n", "event", "fig_hr").
 \item \code{fig_hr}: Hazard ratio figure in a comparison.
 }}
 
-\item{digits}{A numeric value specifying the number of digits to
+\item{digits_hr}{A numeric value specifying the number of digits to
 display for hazard ratios and confidence intervals. Default is 2.}
 
 \item{width_subgroup}{A numeric value specifying the width of
@@ -47,6 +48,9 @@ the hazard ratio figure column in pixels.}
 the "event" column in pixels.}
 
 \item{width_hr}{A numeric value specifying the width of the hazard ratio column in pixels.}
+
+\item{digits_surv}{A numeric value specifying the number of digits to display
+for the survival probability in KM curves.}
 
 \item{footer_space}{A numeric value specifying the space for the footer in pixels.}
 

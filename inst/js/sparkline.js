@@ -106,7 +106,8 @@ function(cell, state) {
         "orientation": "h",
         "xanchor": "center",
         "x": 0.5,
-        "y": legend_position
+        "y": legend_position,
+        "yref": "container"
       }
     },
     "config": {

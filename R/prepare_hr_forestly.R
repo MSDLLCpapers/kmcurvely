@@ -209,8 +209,7 @@ prepare_hr_forestly <- function(meta = NULL,
           km_extract() |>
           dplyr::mutate(
             endpoint = endpt_label,
-            subgroup = km_curve_val,
-            text = paste0(endpoint, ": ", surv, "\n", "Number of participants at risk: ", n.risk)
+            subgroup = km_curve_val
           )
       })
       km_tbl_new <- do.call(rbind, km_tbl_new)

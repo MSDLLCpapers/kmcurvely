@@ -26,7 +26,7 @@
 #'   - `event`: Number of events in a comparison.
 #'   - `hr`: Hazard ratio estimate in a comparison.
 #'   - `fig_hr`: Hazard ratio figure in a comparison.
-#' @param digits A numeric value specifying the number of digits to
+#' @param digits_hr A numeric value specifying the number of digits to
 #'    display for hazard ratios and confidence intervals. Default is 2.
 #' @param width_subgroup A numeric value specifying the width of
 #'    the subgroup column in pixels.
@@ -36,6 +36,8 @@
 #' @param width_event A numeric value specifying the width of
 #'    the "event" column in pixels.
 #' @param width_hr A numeric value specifying the width of the hazard ratio column in pixels.
+#' @param digits_surv A numeric value specifying the number of digits to display
+#'    for the survival probability in KM curves.
 #' @param footer_space A numeric value specifying the space for the footer in pixels.
 #' @param hr_range A numeric vector of lower and upper limit of x-axis
 #'    for the hazard ratio figure.
@@ -60,13 +62,14 @@
 #'   format_hr_forestly()
 format_hr_forestly <- function(outdata,
                                display = c("n", "event", "fig_hr"),
-                               digits = 2,
+                               digits_hr = 2,
                                width_subgroup = 50,
-                               width_fig = 320,
+                               width_fig = 360,
                                width_n = 40,
                                width_event = 40,
                                width_hr = 40,
-                               footer_space = 90,
+                               digits_surv = 2,
+                               footer_space = 150,
                                hr_range = NULL,
                                color = NULL,
                                hr_label = "Treatment <- Favor -> Placebo") {
@@ -105,9 +108,9 @@ format_hr_forestly <- function(outdata,
   tbl <- data.frame(
     outdata$n,
     outdata$event[1:n_group1],
-    round(outdata$hr_est[1:n_group1], digits = digits),
-    round(outdata$hr_ci_lower[1:n_group1], digits = digits),
-    round(outdata$hr_ci_upper[1:n_group1], digits = digits),
+    round(outdata$hr_est[1:n_group1], digits = digits_hr),
+    round(outdata$hr_ci_lower[1:n_group1], digits = digits_hr),
+    round(outdata$hr_ci_upper[1:n_group1], digits = digits_hr),
     hr_fig = NA
   )
   col_names <- sapply(2:n_group, function(x) {
@@ -137,14 +140,14 @@ format_hr_forestly <- function(outdata,
   fig_hr_color <- color[2:n_group]
 
   iter <- 1:ncol(outdata$hr_est[1:n_group1]) - 1
-  text <- glue::glue("x[{iter}] + '(' + x_lower[{iter}] + ', ' + x_upper[{iter}] + ')'")
+  text <- glue::glue("x[{iter}] + ' (' + x_lower[{iter}] + ', ' + x_upper[{iter}] + ')'")
   js_hr_fig_cell <- sparkline_point_js(
     tbl = tbl,
     type = "cell",
     x = names(outdata$hr_est)[1:n_group1],
     x_lower = names(outdata$hr_ci_lower)[1:n_group1],
     x_upper = names(outdata$hr_ci_upper)[1:n_group1],
-    y = 1:n_group1,
+    y = rev(1:n_group1),
     xlim = fig_hr_range,
     color = fig_hr_color,
     width = width_fig,
@@ -154,15 +157,20 @@ format_hr_forestly <- function(outdata,
 
   # Function to create Axis
   js_hr_fig_footer <- sparkline_point_js(
-    tbl = data.frame(x = 1),
-    x = "x",
+    tbl = tbl,
+    x = names(outdata$hr_est)[1:n_group1],
     y = -1,
     type = "footer",
     xlab = hr_label,
     xlim = fig_hr_range,
     height = footer_space,
     width = width_fig,
-    legend = FALSE,
+    color = fig_hr_color,
+    legend = TRUE,
+    legend_label = outdata$group[2:n_group],
+    legend_title = "",
+    legend_position = -2,
+    legend_type = "point",
     margin = c(footer_space - 20, 20, 0, 0, 0)
   )
 
@@ -231,7 +239,7 @@ format_hr_forestly <- function(outdata,
         header = "HR",
         minWidth = width_hr,
         show = display_hr,
-        format = reactable::colFormat(digits = digits)
+        format = reactable::colFormat(digits = digits_hr)
       )
     }
   )
@@ -279,6 +287,13 @@ format_hr_forestly <- function(outdata,
     return(x)
   })
 
+  # Update km_data to round
+  km_data <- outdata$km_data |>
+    dplyr::mutate(
+      surv = round(surv, digits_surv),
+      text = paste0(endpoint, ": ", formatC(surv, format = "f", digits = digits_surv), "\n", "Number of participants at risk: ", n.risk)
+    )
+
   # Create outdata
   outdata$tbl <- tbl
   outdata$reactable_columns <- columns
@@ -286,6 +301,7 @@ format_hr_forestly <- function(outdata,
   outdata$display <- display
   outdata$fig_hr_color <- fig_hr_color
   outdata$color <- color
+  outdata$km_data <- km_data
 
   outdata
 }
