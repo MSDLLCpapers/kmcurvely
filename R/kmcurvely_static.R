@@ -63,38 +63,14 @@ kmcurvely_static <- function(surv_shared,
 
   # Create an empty list to store the plots & tables
   plots <- list()
-  par <- meta_tte_example()[["parameter"]]
   # Iterate over unique shared_id values
   for (shared_id in unique_shared_ids) {
     # Subset the data for the current shared_id
     subset_data <- filter(surv_shared, shared_id == .env$shared_id)
-    # print(subset_data)
-    # shared_id<-"PFS-ALL"
 
-    endpoint_ <- tolower(unlist(strsplit(shared_id, "-"))[1])
-    subgroup_ <- tolower(unlist(strsplit(shared_id, "-"))[2])
-
-    # Extracting and reshaping the data
-    extracted_data <- lapply(par, function(x) {
-      data.frame(
-        name = tolower(unlist(x$name)),
-        label = unlist(x$label),
-        stringsAsFactors = FALSE
-      )
-    })
-
-    df <- do.call(rbind, extracted_data)
-
-
-    endpoint_idx <- grep(endpoint_, df$name)
-    if (length(endpoint_idx) > 0) {
-      title_end <- df$label[endpoint_idx][1]
-    }
-
-    subgroup_idx <- grep(subgroup_, df$name)
-    if (length(subgroup_idx) > 0) {
-      title_sub <- df$label[subgroup_idx][1]
-    } else {
+    title_end <- subset_data$endpoint[1]
+    title_sub <- subset_data$subgroup[1]
+    if (isTRUE(title_sub == "All")) {
       title_sub <- NULL
     }
 
