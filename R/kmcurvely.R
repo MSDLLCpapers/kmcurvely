@@ -101,6 +101,37 @@ kmcurvely <- function(meta = meta_tte_example(),
   # ----------------------------------------------- #
   endpoint <- unlist(strsplit(endpoint, ";"))
   subgroup <- unlist(strsplit(subgroup, ";"))
+
+  has_parameter_mapping <- function(name) {
+    mapping <- metalite::collect_adam_mapping(meta, name)
+    !is.null(mapping$subset) && !is.null(mapping$label)
+  }
+  undefined_endpoint <- endpoint[!vapply(endpoint, has_parameter_mapping, logical(1))]
+  undefined_subgroup <- subgroup[!vapply(subgroup, has_parameter_mapping, logical(1))]
+
+  mapping_errors <- character()
+  if (length(undefined_endpoint) > 0) {
+    mapping_errors <- c(
+      mapping_errors,
+      paste0("Endpoint(s) not defined in `meta`: ", paste(undefined_endpoint, collapse = ", "))
+    )
+  }
+  if (length(undefined_subgroup) > 0) {
+    mapping_errors <- c(
+      mapping_errors,
+      paste0("Subgroup(s) not defined in `meta`: ", paste(undefined_subgroup, collapse = ", "))
+    )
+  }
+  if (length(mapping_errors) > 0) {
+    stop(
+      paste(
+        c(mapping_errors, "Define each value with `metalite::define_parameter()` before calling `kmcurvely()`."),
+        collapse = "\n"
+      ),
+      call. = FALSE
+    )
+  }
+
   n_endpoint <- length(endpoint)
   n_subgroup <- length(subgroup)
   n_group <- length(unique(obs[[obs_group]]))
