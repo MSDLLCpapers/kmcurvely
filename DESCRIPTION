@@ -11,7 +11,7 @@ Authors@R: c(
     )
 Description: Interactive Kaplan-Meier plot for time-to-event analysis.
 License: GPL (>= 3)
-URL: https://merck.github.io/kmcurvely/, https://github.com/MSDLLCpapers/kmcurvely
+URL: https://msdllcpapers.github.io/kmcurvely/, https://github.com/MSDLLCpapers/kmcurvely
 BugReports: https://github.com/MSDLLCpapers/kmcurvely/issues
 Encoding: UTF-8
 LazyData: true
@@ -47,4 +47,4 @@ VignetteBuilder:
     knitr
 Config/testthat/edition: 3
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 8.1.0

@@ -11,43 +11,57 @@ import(ggplot2)
 import(metalite)
 import(r2rtf)
 importFrom(DT,datatable)
-importFrom(crosstalk,SharedData)
-importFrom(crosstalk,filter_select)
-importFrom(dplyr,"%>%")
-importFrom(dplyr,any_of)
-importFrom(dplyr,everything)
-importFrom(dplyr,filter)
-importFrom(dplyr,group_by)
-importFrom(dplyr,left_join)
-importFrom(dplyr,mutate)
-importFrom(dplyr,rename)
-importFrom(dplyr,row_number)
-importFrom(dplyr,select)
-importFrom(dplyr,starts_with)
-importFrom(dplyr,union_all)
-importFrom(ggplot2,aes)
-importFrom(ggplot2,geom_step)
-importFrom(ggplot2,ggplot)
-importFrom(ggplot2,scale_color_manual)
-importFrom(ggplot2,theme_bw)
-importFrom(ggplot2,xlab)
-importFrom(ggplot2,ylab)
-importFrom(htmltools,browsable)
-importFrom(htmltools,htmlDependency)
-importFrom(htmltools,tagList)
-importFrom(metalite,define_analysis)
-importFrom(metalite,define_observation)
-importFrom(metalite,define_parameter)
-importFrom(metalite,define_plan)
-importFrom(metalite,define_population)
-importFrom(metalite,meta_adam)
-importFrom(metalite,meta_build)
-importFrom(plotly,add_trace)
-importFrom(plotly,ggplotly)
-importFrom(plotly,highlight)
-importFrom(plotly,layout)
-importFrom(survival,Surv)
-importFrom(survival,strata)
-importFrom(survival,survfit)
+importFrom(crosstalk,
+  SharedData,
+  filter_select
+)
+importFrom(dplyr,
+  "%>%",
+  any_of,
+  everything,
+  filter,
+  group_by,
+  left_join,
+  mutate,
+  rename,
+  row_number,
+  select,
+  starts_with,
+  union_all
+)
+importFrom(ggplot2,
+  aes,
+  geom_step,
+  ggplot,
+  scale_color_manual,
+  theme_bw,
+  xlab,
+  ylab
+)
+importFrom(htmltools,
+  browsable,
+  htmlDependency,
+  tagList
+)
+importFrom(metalite,
+  define_analysis,
+  define_observation,
+  define_parameter,
+  define_plan,
+  define_population,
+  meta_adam,
+  meta_build
+)
+importFrom(plotly,
+  add_trace,
+  ggplotly,
+  highlight,
+  layout
+)
+importFrom(survival,
+  Surv,
+  strata,
+  survfit
+)
 importFrom(utils,data)
 importFrom(uuid,UUIDgenerate)
