@@ -33,36 +33,36 @@ kmcurvely(meta = meta,
 
 ## Time-to-event analysis
 
-- [`meta_tte_example()`](https://merck.github.io/kmcurvely/reference/meta_tte_example.md)
+- [`meta_tte_example()`](https://msdllcpapers.github.io/kmcurvely/reference/meta_tte_example.md)
   : Example Function for Time-to-Event Analysis
-- [`kmcurvely_static()`](https://merck.github.io/kmcurvely/reference/kmcurvely_static.md)
+- [`kmcurvely_static()`](https://msdllcpapers.github.io/kmcurvely/reference/kmcurvely_static.md)
   : Generate Static KM plot by endpoints and subgroups and save as
   RTF/PNG files
-- [`kmcurvely()`](https://merck.github.io/kmcurvely/reference/kmcurvely.md)
+- [`kmcurvely()`](https://msdllcpapers.github.io/kmcurvely/reference/kmcurvely.md)
   : Generate interactive KM plot by endpoints and subgroups
 
 ## Examples
 
-- [`kmcurvely_adsl`](https://merck.github.io/kmcurvely/reference/kmcurvely_adsl.md)
+- [`kmcurvely_adsl`](https://msdllcpapers.github.io/kmcurvely/reference/kmcurvely_adsl.md)
   : ADSL dataset
-- [`kmcurvely_adtte`](https://merck.github.io/kmcurvely/reference/kmcurvely_adtte.md)
+- [`kmcurvely_adtte`](https://msdllcpapers.github.io/kmcurvely/reference/kmcurvely_adtte.md)
   : ADTTE dataset
-- [`km_extract()`](https://merck.github.io/kmcurvely/reference/km_extract.md)
+- [`km_extract()`](https://msdllcpapers.github.io/kmcurvely/reference/km_extract.md)
   : Extract Survival Estimates
-- [`kmcurvely_static()`](https://merck.github.io/kmcurvely/reference/kmcurvely_static.md)
+- [`kmcurvely_static()`](https://msdllcpapers.github.io/kmcurvely/reference/kmcurvely_static.md)
   : Generate Static KM plot by endpoints and subgroups and save as
   RTF/PNG files
-- [`meta_tte_example()`](https://merck.github.io/kmcurvely/reference/meta_tte_example.md)
+- [`meta_tte_example()`](https://msdllcpapers.github.io/kmcurvely/reference/meta_tte_example.md)
   : Example Function for Time-to-Event Analysis
-- [`meta_tte_example_new()`](https://merck.github.io/kmcurvely/reference/meta_tte_example_new.md)
+- [`meta_tte_example_new()`](https://msdllcpapers.github.io/kmcurvely/reference/meta_tte_example_new.md)
   : Example Function for Time-to-Event Analysis
-- [`check_args()`](https://merck.github.io/kmcurvely/reference/check_args.md)
+- [`check_args()`](https://msdllcpapers.github.io/kmcurvely/reference/check_args.md)
   : Check Argument Types, Length or Dimension
-- [`prepare_hr_forestly()`](https://merck.github.io/kmcurvely/reference/prepare_hr_forestly.md)
+- [`prepare_hr_forestly()`](https://msdllcpapers.github.io/kmcurvely/reference/prepare_hr_forestly.md)
   : Prepare the dataset for the HR forest plot, alongwith its KM plots
-- [`format_hr_forestly()`](https://merck.github.io/kmcurvely/reference/format_hr_forestly.md)
+- [`format_hr_forestly()`](https://msdllcpapers.github.io/kmcurvely/reference/format_hr_forestly.md)
   : Format the outdata for the HR forest plot, along with its KM plots
-- [`hr_forestly()`](https://merck.github.io/kmcurvely/reference/hr_forestly.md)
+- [`hr_forestly()`](https://msdllcpapers.github.io/kmcurvely/reference/hr_forestly.md)
   : Display the HR forest plot, along with its KM plots
 
 # Articles
@@ -70,11 +70,11 @@ kmcurvely(meta = meta,
 ### Generate Kaplan-Meier curves plot
 
 - [Generate Kaplan-Meier curves plot for time-to-event
-  analysis](https://merck.github.io/kmcurvely/articles/kmcurvely.md):
+  analysis](https://msdllcpapers.github.io/kmcurvely/articles/kmcurvely.md):
 
 ### Developer Notes
 
 - [Design
-  Pattern](https://merck.github.io/kmcurvely/articles/programming_logic.md):
+  Pattern](https://msdllcpapers.github.io/kmcurvely/articles/programming_logic.md):
 - [Interactive KM
-  plots](https://merck.github.io/kmcurvely/articles/quick_start.md):
+  plots](https://msdllcpapers.github.io/kmcurvely/articles/quick_start.md):

@@ -18,16 +18,16 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/MSDLLCpapers/kmcurvely/blob/main/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/MSDLLCpapers/kmcurvely/blob/29-add-a-pkgdown-website/DESCRIPTION)
 
 Zhao Y, Wang B, Geng S, Wang C (2026). *kmcurvely: Interactive
 Kaplan-Meier curves plot for time-to-event analysis*. R package version
-0.0.2, <https://merck.github.io/kmcurvely/>.
+0.0.2, <https://msdllcpapers.github.io/kmcurvely/>.
 
     @Manual{,
       title = {kmcurvely: Interactive Kaplan-Meier curves plot for time-to-event analysis},
       author = {Yujie Zhao and Benjamin Wang and Shuo Geng and Chen Wang},
       year = {2026},
       note = {R package version 0.0.2},
-      url = {https://merck.github.io/kmcurvely/},
+      url = {https://msdllcpapers.github.io/kmcurvely/},
     }

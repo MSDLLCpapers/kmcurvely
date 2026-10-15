@@ -27,7 +27,7 @@ format_hr_forestly(
 - outdata:
 
   An `outdata` object created by
-  [`prepare_hr_forestly()`](https://merck.github.io/kmcurvely/reference/prepare_hr_forestly.md).
+  [`prepare_hr_forestly()`](https://msdllcpapers.github.io/kmcurvely/reference/prepare_hr_forestly.md).
 
 - display:
 
