@@ -18,7 +18,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/MSDLLCpapers/kmcurvely/blob/29-add-a-pkgdown-website/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/MSDLLCpapers/kmcurvely/blob/main/DESCRIPTION)
 
 Zhao Y, Wang B, Geng S, Wang C (2026). *kmcurvely: Interactive
 Kaplan-Meier curves plot for time-to-event analysis*. R package version
